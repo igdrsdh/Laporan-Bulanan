@@ -3,1610 +3,1309 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aplikasi Laporan Data Harian Rinci - Firebase Cloud Storage</title>
-    
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script> 
+    <title>Laporan Jaga IGD</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* BASE STYLES - TEMA BARU: Profesional & Rapi */
+        /* ============================
+           BASE STYLES (LIGHT MODE)
+        ============================ */
+        /* Menggunakan font Inter untuk tampilan yang bersih */
         body {
-            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f6; /* Off-white / Light Gray */
-            color: #333; /* Dark text */
-            margin: 0;
-            padding: 20px;
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f9;
+        }
+        /* Style untuk judul shift */
+        .shift-header {
+            /* Warna default akan diganti oleh kelas Tailwind di HTML */
+            color: white;
+            padding: 12px 16px; /* Padding lebih besar */
+            border-radius: 0.75rem; /* Sudut lebih membulat */
+            margin-top: 20px;
+            font-weight: 800; /* Lebih tebal */
+            font-size: 1.125rem; /* Lebih besar */
             display: flex;
-            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.2s;
         }
-
-        .container {
-            /* MENAMBAH LEBAR MAKSIMUM & PUSAT */
-            background-color: #ffffff;
-            padding: 30px; 
-            border-radius: 12px; 
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); /* Shadow yang lebih halus */
-            max-width: 1400px; 
-            width: 95%; 
-            margin: auto; 
+        .shift-header:hover {
+            opacity: 0.9;
         }
-
-        h1 {
-            color: #1a237e; /* Deep Blue Header */
-            text-align: center;
-            margin-bottom: 30px; 
-            font-size: 2.2em;
-            font-weight: 700; 
-            border-bottom: 3px solid #e0e0e0;
-            padding-bottom: 10px;
-        }
-
-        h2 {
-            color: #3949ab; /* Blue Accent */
-            border-left: 5px solid #3949ab; 
-            padding-left: 10px;
-            margin-top: 25px;
-            margin-bottom: 20px;
-            font-weight: 600;
-            font-size: 1.6em; 
-        }
-
-        h3 {
-            color: #00897b; /* Teal Accent */
-            font-size: 1.2em;
-            font-weight: 600;
-            margin-bottom: 15px;
-            width: 100%; /* Agar judul group penuh */
-        }
-
-        /* INPUT & FORM STYLES */
-        .input-section, .report-section {
-            margin-bottom: 30px;
-            padding: 25px;
-            border-radius: 10px;
-            background-color: #f9f9f9; 
-            border: 1px solid #e0e0e0;
-        }
-
-        label {
+        .input-group label {
+            font-weight: 600; /* Sedikit lebih tebal */
+            color: #374151; /* Abu-abu gelap */
             display: block;
-            margin-top: 5px;
-            font-weight: 500; 
-            margin-bottom: 5px;
-            color: #555; 
+            margin-bottom: 4px;
         }
-
-        input[type="date"],
-        select {
+        .input-group input, .input-group textarea, .input-group select {
+            padding: 10px; /* Padding lebih besar */
+            border: 2px solid #e5e7eb; /* Border lebih jelas */
+            border-radius: 0.75rem;
+            transition: all 0.2s;
+            background-color: white;
             width: 100%;
-            padding: 10px; 
-            margin-top: 0;
-            margin-bottom: 15px; 
-            border: 1px solid #bdbdbd; 
-            border-radius: 6px;
-            box-sizing: border-box;
-            transition: border-color 0.3s, box-shadow 0.3s;
-            background-color: #ffffff;
         }
-        input:focus, select:focus {
-            border-color: #42a5f5; /* Light Blue Focus */
-            box-shadow: 0 0 8px rgba(66, 165, 245, 0.4);
+        .input-group input:focus, .input-group textarea:focus, .input-group select:focus {
+            border-color: #0ea5e9; /* Biru Langit saat fokus */
+            box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.3);
             outline: none;
         }
-
-        button {
-            background-color: #43a047; /* Green Save */
-            color: white;
-            padding: 10px 20px; 
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 1em; 
-            font-weight: 600;
-            transition: background-color 0.3s, transform 0.1s, box-shadow 0.3s;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin: 0; 
-        }
-
-        button:hover {
-            background-color: #388e3c; 
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        /* Style untuk menata input angka agar berdampingan di mobile */
+        .input-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
         }
         
-        button.export-button {
-            background-color: #fb8c00; /* Orange Export */
-            margin-right: 0 !important;
-        }
-        button.export-button:hover {
-            background-color: #f57c00; 
-        }
-
-        button.reset-button {
-            background-color: #ffb300; /* Amber Yellow Reset */
-        }
-        button.reset-button:hover {
-            background-color: #ff8f00; 
-        }
-
-        button.delete-button {
-            background-color: #e53935; /* Red Delete All Data */
-        }
-        button.delete-button:hover {
-            background-color: #c62828; 
-        }
-        
-        /* TOMBOL BARU: Hapus Data Tanggal Ini */
-        button.delete-date-button {
-            background-color: #8c0000; /* Darker Red for specific deletion */
-        }
-        button.delete-date-button:hover {
-            background-color: #6d0000; 
-        }
-        
-        /* INPUT GROUPS - LAYOUT UMUM */
-        .input-group {
-            margin-bottom: 25px; 
-            padding: 20px 15px; 
-            border: 1px solid #cfd8dc; 
-            border-radius: 8px;
-            background-color: #eceff1; 
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-        }
-
-        /* 1. INPUT BERPASANGAN (ASURANSI & SPESIALISASI) */
-        .input-pair-wrapper {
-            width: 48%; /* 2 kolom utama di desktop */
-            margin-bottom: 25px;
-            padding: 10px;
-            border: 1px solid #cfd8dc;
-            border-radius: 6px;
-            background-color: #ffffff; 
-        }
-
-        .main-label {
-            font-weight: 600;
-            color: #1a237e; 
-            display: block;
-            margin-bottom: 10px;
-            padding-bottom: 5px;
-            border-bottom: 1px dotted #ccc;
-            font-size: 1.1em;
-        }
-        
-        .input-sub-pair {
-            display: flex;
-            gap: 15px;
-        }
-        
-        .input-sub-item {
-            flex-grow: 1;
-        }
-        .input-sub-item label {
-            font-weight: 400; 
-            color: #555;
-            font-size: 0.9em;
-            margin-top: 0;
-            margin-bottom: 2px;
-        }
-        .input-sub-item input[type="number"] {
-            width: 100%;
-            padding: 8px; 
-            margin: 0;
-            text-align: left; 
-            box-sizing: border-box;
-            background-color: #fff; 
-            border: 1px solid #90a4ae; 
-        }
-
-        /* 2. INPUT TUNGGAL (TOTALS) */
-        .input-item {
-            display: flex;
-            flex-direction: column;
-            width: 30%; 
-            margin-bottom: 15px; 
-        }
-        .input-item input[type="number"] {
-             padding: 10px; 
-            margin: 0;
-            text-align: left; 
-            box-sizing: border-box;
-            background-color: #fff; 
-            border: 1px solid #90a4ae; 
-        }
-
-        /* PENTING: Style untuk input yang dikalkulasi otomatis (read-only) */
-        .input-item input[type="number"][readonly] {
-            background-color: #e3f2fd; /* Light blue background for calculated fields */
-            font-weight: bold;
-            color: #1a237e;
-        }
-
-        /* ************************************** */
-        /* PENYESUAIAN KHUSUS UNTUK KEJADIAN KHUSUS (SECTION 3) */
-        /* ************************************** */
-        .input-khusus-wrapper {
-            width: 100%; /* Setiap item Kejadian Khusus mengambil 100% lebar */
-            margin-bottom: 15px;
-            padding: 10px;
-            border: 1px solid #b0bec5; /* Light Blue-Gray border */
-            border-radius: 6px;
-            background-color: #fbfbfb;
-        }
-        
-        .main-label-khusus {
-            font-weight: 600;
-            color: #00897b; /* Teal color */
-            display: block;
-            margin-bottom: 8px;
-            padding-bottom: 4px;
-            border-bottom: 1px dashed #cfd8dc;
-            font-size: 1.05em;
-        }
-        
-        .input-sub-pair-khusus {
-            display: flex;
-            gap: 20px;
-            align-items: flex-start;
-        }
-        
-        .input-khusus-jumlah {
-            flex-basis: 150px; /* Lebar tetap untuk input jumlah */
-            flex-shrink: 0;
-        }
-        
-        .input-khusus-keterangan {
-            flex-grow: 1; /* Mengambil sisa ruang untuk keterangan */
-        }
-        
-        /* PENTING: Style untuk TEXTAREA */
-        .input-khusus-keterangan textarea {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 0;
-            border: 1px solid #bdbdbd;
-            border-radius: 6px;
-            box-sizing: border-box;
-            resize: vertical; /* Hanya izinkan resize vertikal */
-            min-height: 80px; /* Ketinggian minimum agar bisa menampilkan list */
-        }
-
-        /* Penyesuaian Responsif */
-        @media (max-width: 1200px) {
-            .input-pair-wrapper {
-                width: 100%; 
-            }
-            .input-item {
-                width: 48%; 
-            }
-        }
-        @media (max-width: 768px) {
-            .input-sub-pair-khusus {
-                flex-direction: column; /* Tumpuk di layar kecil */
-                gap: 5px;
-            }
-            .input-khusus-jumlah {
-                flex-basis: auto;
-                width: 100%;
-                margin-bottom: 10px;
-            }
-            .input-item {
-                width: 48%; 
-            }
-        }
-        @media (max-width: 600px) {
-             .input-item {
-                width: 100%; 
-            }
-        }
-        
-        .input-item input[type="number"]:not([readonly]):focus,
-        .input-sub-item input[type="number"]:focus,
-        .input-khusus-keterangan textarea:focus { 
-             border-color: #00acc1; 
-             box-shadow: 0 0 6px rgba(0, 172, 193, 0.4);
-        }
-        
-        /* TABLE STYLES */
-        #laporan-tabel {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px; 
-            font-size: 0.8em; 
-            table-layout: auto; 
-        }
-
-        #laporan-tabel th, #laporan-tabel td {
-            border: 1px solid #e0e0e0; 
-            padding: 8px 6px; 
-            text-align: left;
-            min-width: 50px; 
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        #laporan-tabel th {
-            background-color: #3949ab; 
-            color: white;
-            text-align: center;
-            font-size: 0.85em;
-        }
-        
-        #laporan-tabel td.keterangan-cell {
-            min-width: 150px; 
-            max-width: 300px;
-            white-space: pre-wrap; 
-            text-overflow: clip; 
-            overflow: visible; 
-            font-size: 0.75em; 
-        }
-        
-        .total-row {
-            font-weight: bold;
-            background-color: #c5cae9 !important; 
-            color: #1a237e;
-        }
-        
-        /* Style untuk Kolom Total di format Transpose */
-        #laporan-tabel tr td:last-child {
-            background-color: #e8eaf6; 
-            font-weight: bold;
-        }
-        
-        /* ************************************** */
-        /* PENAMBAHAN STYLE KUSTOM UNTUK LAPORAN TRANSPOSE */
-        /* ************************************** */
-
-        /* Kelas untuk baris Rawat Jalan (RJ) */
-        .row-rj td:not(:first-child):not(:last-child) {
-            background-color: #fffde7; /* Krem Muda (Light Yellow) */
-        }
-
-        /* Kelas untuk baris Rawat Inap (RI) */
-        .row-ri td:not(:first-child):not(:last-child) {
-            background-color: #e0f7fa; /* Biru Muda (Light Cyan) */
-        }
-        
-        /* Kelas untuk baris Umum/Lainnya */
-        .row-umum td:not(:first-child):not(:last-child) {
-            background-color: #f5f5f5; /* Warna netral */
-        }
-
-        /* Kelas untuk baris Kejadian Khusus */
-        .row-khusus td:not(:first-child):not(:last-child) {
-            background-color: #ffe0b2; /* Oranye muda untuk Kejadian Khusus */
-        }
-
-        /* Override khusus untuk cell KETERANGAN di Kejadian Khusus agar menonjol */
-        .row-khusus .keterangan-cell {
-            background-color: #ffcc80 !important; /* Oranye sedikit lebih tua */
-            font-weight: 500;
-        }
-
-        /* Penting: Pastikan baris total tetap menggunakan warna aslinya */
-        /* KECUALI yang baru ditambahkan (TOTAL HARIAN) */
-        #laporan-tabel .total-row {
-            background-color: #e8eaf6 !important; 
-        }
-        
-        /* Border Vertikal Pemisah TEBAL */
-        /* 1. Pemisah antara TOTAL PASIEN & SPESIALISASI: Kolom 'Total RI' (index 6 dari kolom data) */
-        /* Ini adalah kolom ke-7 dari kiri (kolom Kategori adalah ke-1) */
-        #laporan-tabel th:nth-child(7), 
-        #laporan-tabel td:nth-child(7) {
-            border-right: 3px solid #1a237e; /* Border Biru Tua */
-        }
-        
-        /* 2. Pemisah antara SPESIALISASI & KEJADIAN KHUSUS: Kolom 'Mata RI' (index 19 dari kolom data) */
-        /* Ini adalah kolom ke-21 dari kiri */
-        #laporan-tabel th:nth-child(21), 
-        #laporan-tabel td:nth-child(21) {
-            border-right: 3px solid #00897b; /* Border Teal */
-        }
-
-
-        #total-nilai {
-            margin-top: 20px;
-            font-size: 1.3em; 
-            font-weight: bold;
-            padding: 15px; 
-            background-color: #e8f5e9; 
-            border-radius: 8px;
-            text-align: right;
-            color: #2e7d32; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
-        .report-controls {
-            display: flex; 
-            gap: 15px; 
-            margin-bottom: 20px; 
+        /* PERBAIKAN AKHIR: TATA LETAK DOKTER DAN PENGGANTI (SAMA BESAR) */
+        .doctor-inputs {
+            display: flex; /* Menggunakan Flexbox untuk menata Select dan Input berdampingan */
+            gap: 8px; /* Jarak antara dropdown dan input teks tambahan */
             align-items: center;
-            justify-content: flex-start;
-        }
-
-        .input-controls {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-            flex-wrap: wrap; 
-        }
-        .input-controls button {
-            flex-grow: 1;
-            padding: 12px 20px; 
-        }
-
-        .input-controls button:first-child {
-            flex-grow: 2; 
         }
         
-        /* ************************************** */
-        /* STYLE BARU UNTUK CHANGELOG (RIWAYAT PERUBAHAN) */
-        /* ************************************** */
-        .changelog-section {
-            margin-top: 30px;
-            padding: 25px;
-            border-radius: 10px;
-            background-color: #e0f2f1; /* Light Teal Background */
-            border: 1px solid #b2dfdb;
-        }
-
-        .changelog-section summary {
-            font-size: 1.5em;
-            font-weight: 700;
-            color: #004d40; /* Dark Teal Text */
-            cursor: pointer;
-            padding: 10px 0;
+        /* Mengatur agar Select dan Input memiliki lebar yang sama (masing-masing 50% ruang yang tersedia dikurangi gap) */
+        .doctor-inputs select,
+        .doctor-inputs input {
+            flex-grow: 1; /* Keduanya mengambil ruang yang sama */
+            flex-basis: 0; /* Mulai dari lebar 0 */
+            min-width: 0; /* Memastikan keduanya dapat menyusut dengan benar */
         }
         
-        .changelog-section details[open] summary {
-             border-bottom: 2px solid #004d40;
-             margin-bottom: 15px;
-        }
-
-        .changelog-list {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        .changelog-item {
-            padding: 10px 0;
-            border-bottom: 1px dashed #b2dfdb;
-            line-height: 1.4;
-        }
-
-        .changelog-item:last-child {
-            border-bottom: none;
-        }
-
-        .changelog-item strong {
-            color: #3949ab;
+        .doctor-inputs input {
+             text-align: center; /* Pertahankan text alignment untuk input pengganti */
         }
         
+        /* Atur lebar penuh untuk input-group biasa */
+        .input-group input, .input-group select, .input-group textarea {
+            width: 100%;
+        }
+
+        /* ============================
+             DARK MODE SOFT STYLES
+        ============================ */
+        /* Class 'dark' akan ditambahkan ke elemen <html> */
+        .dark {
+            background-color: #1e293b !important; /* Slate-800 */
+            color: #e2e8f0 !important; /* Slate-200 */
+        }
+
+        .dark body {
+            background-color: #1e293b !important;
+        }
+
+        /* Mengubah warna kartu utama */
+        .dark .max-w-2xl {
+            background-color: #334155 !important; /* Slate-700 */
+            color: #e2e8f0 !important;
+        }
+
+        /* Mengubah warna input, textarea, select */
+        .dark input,
+        .dark textarea,
+        .dark select {
+            background-color: #475569 !important; /* Slate-600 */
+            border-color: #64748b !important;
+            color: #f1f5f9 !important;
+        }
+        
+        /* Mengubah warna latar belakang yang spesifik (misal: header input rincian) */
+        .dark .bg-white {
+            background-color: #3b4758 !important;
+        }
+
+        /* Mengubah warna latar belakang output laporan */
+        .dark .bg-gray-100 {
+            background-color: #475569 !important;
+        }
+
+        /* Menyesuaikan warna teks */
+        .dark .text-gray-800 {
+            color: #f1f5f9 !important;
+        }
+
+        /* Menyesuaikan warna teks */
+        .dark .text-gray-600,
+        .dark .text-gray-500 {
+            color: #cbd5e1 !important;
+        }
+
+        /* Menyesuaikan warna border (pembatas) */
+        .dark .border {
+            border-color: #475569 !important;
+        }
+        
+        /* Menyesuaikan warna header shift yang terang */
+        .dark .bg-blue-50 { background-color: #334155 !important; }
+        .dark .bg-teal-50 { background-color: #334155 !important; }
+        .dark .bg-orange-50 { background-color: #334155 !important; }
+        .dark .bg-purple-50 { background-color: #334155 !important; }
+
+        .dark .text-sky-600 { color: #60a5fa !important; }
+        .dark .text-sky-700 { color: #93c5fd !important; }
+        .dark .text-gray-700 { color: #cbd5e1 !important; }
+
+        /* ===========================================
+           PERBAIKAN TAMBAHAN UNTUK TEKS GELAP
+        =========================================== */
+
+        /* Semua judul kecil di dalam section shift */
+        .dark .text-sm,
+        .dark .text-base,
+        .dark .text-gray-600,
+        .dark .text-gray-700,
+        .dark .text-gray-800,
+        .dark .font-medium,
+        .dark .font-semibold {
+            color: #f1f5f9 !important; /* Slate-100 */
+        }
+
+        /* Label dalam input-group (contoh: Rawat Inap, Rawat Jalan) */
+        .dark .input-group label {
+            color: #e2e8f0 !important; /* Slate-200 */
+        }
+
+        /* Judul kategori yang berada di grid (mis: Rujukan PKM, Bawa Surat Rujukan) */
+        .dark .grid .col-span-2 {
+            color: #f1f5f9 !important;
+        }
+
+        /* Title BPJS, UMUM di bagian RINCIAN KASUS */
+        /* Menggunakan kombinasi selektor textarea + label dan label + textarea yang lebih spesifik */
+        .dark textarea + label,
+        .dark label + textarea {
+            color: #e2e8f0 !important;
+        }
+
+        /* Judul besar tiap segmen */
+        .dark h3 {
+            color: #f8fafc !important; /* Putih lembut */
+        }
+        
+        /* DARK MODE UNTUK PESAN WARNING DOKTER */
+        .dark .bg-red-100 { background-color: #450a0a !important; } /* Merah sangat gelap */
+        .dark .border-red-400 { border-color: #7f1d1d !important; } /* Border merah gelap */
+        .dark .text-red-700 { color: #fecaca !important; } /* Teks merah sangat terang */
+
+
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>🏥 Input Data Harian Laporan Pelayanan (Cloud Firestore) <small style="font-size: 0.6em; color: #616161; font-weight: 400;">(Versi 1.2)</small></h1>
-        
-        <div class="input-section">
-            <h2>Input Data Harian</h2>
-            <div style="display: flex; flex-wrap: wrap; align-items: center; margin-bottom: 20px; gap: 20px;">
-                <label for="tanggal" style="margin-top:0; font-size: 1.1em; width: auto; flex-shrink: 0;">Tanggal:</label>
-                <input type="date" id="tanggal" onchange="muatDataTanggal()" required style="width: 250px; margin-bottom: 0;">
+<body class="p-4 md:p-8">
+    
+    <button id="darkToggle"
+        class="fixed top-4 right-4 bg-gray-800 text-white px-4 py-2 rounded-xl shadow-lg hover:opacity-90 z-50">
+        🌓 Mode Gelap
+    </button>
+
+
+    <div class="max-w-2xl mx-auto bg-white p-6 md:p-8 rounded-2xl shadow-2xl">
+        <h1 class="text-3xl font-extrabold text-gray-800 mb-2">Laporan Jaga IGD</h1>
+        <p class="text-gray-500 mb-6">Masukkan data pasien tiap shift dan salin laporan secara otomatis.</p>
+
+        <div class="space-y-4 mb-8 border-b pb-6">
+            <h2 class="text-xl font-semibold text-sky-600">Data Umum</h2>
+            <div class="input-group">
+                <label for="inputDate">Hari & Tanggal</label>
+                <input type="text" id="inputDate" value="" placeholder="Senin, 01 Januari 2025">
+            </div>
+            <div class="input-group">
+                <label for="inputCity">Kota</label>
+                <input type="text" id="inputCity" value="Mojokerto" readonly class="bg-gray-100 cursor-default">
             </div>
             
-            <div class="input-group">
-                <h3>1. Asuransi & Total Pasien</h3>
-                
-                <div class="input-pair-wrapper">
-                    <label for="bpjsRj" class="main-label">Pasien BPJS</label>
-                    <div class="input-sub-pair">
-                        <div class="input-sub-item">
-                            <label for="bpjsRj">Rawat Jalan (RJ):</label>
-                            <input type="number" id="bpjsRj" value="0" min="0" oninput="updateTotals()">
-                        </div>
-                        <div class="input-sub-item">
-                            <label for="bpjsRi">Rawat Inap (RI):</label>
-                            <input type="number" id="bpjsRi" value="0" min="0" oninput="updateTotals()">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="input-pair-wrapper">
-                    <label for="swastaRj" class="main-label">Pasien Swasta</label>
-                    <div class="input-sub-pair">
-                        <div class="input-sub-item">
-                            <label for="swastaRj">Rawat Jalan (RJ):</label>
-                            <input type="number" id="swastaRj" value="0" min="0" oninput="updateTotals()">
-                        </div>
-                        <div class="input-sub-item">
-                            <label for="swastaRi">Rawat Inap (RI):</label>
-                            <input type="number" id="swastaRi" value="0" min="0" oninput="updateTotals()">
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="input-item">
-                    <label for="totalPasien">Total Pasien (Semua):</label>
-                    <input type="number" id="totalPasien" value="0" min="0" readonly>
-                </div>
-                <div class="input-item">
-                    <label for="totalRi">Total Pasien Rawat Inap:</label>
-                    <input type="number" id="totalRi" value="0" min="0" readonly>
-                </div>
-                <div class="input-item" style="height: 0; margin-bottom: 0; visibility: hidden;"></div> 
             </div>
 
-            <div class="input-group">
-                <h3>2. Data Spesialisasi</h3>
-                
-                <div class="input-pair-wrapper">
-                    <label for="pdRi" class="main-label">Penyakit Dalam (PD)</label>
-                    <div class="input-sub-pair">
-                        <div class="input-sub-item">
-                            <label for="pdRi">Rawat Inap (RI):</label>
-                            <input type="number" id="pdRi" value="0" min="0">
+        <div id="shifts-container" class="space-y-6">
+            <div class="shift-block" data-shift="Pagi1">
+                <div class="shift-header cursor-pointer bg-blue-900" id="headerPagi1">
+                    <span role="img" aria-label="emoji" class="mr-3 text-xl">🌙</span> Shift Dini Hari (00.00 - 07.00)
+                </div>
+                <div class="p-4 bg-blue-50 rounded-b-xl space-y-4 hidden" id="contentPagi1">
+                    <div class="space-y-4"> 
+                        <div class="input-group">
+                            <label for="drPagi1">Nama Dokter</label>
+                            <div class="doctor-inputs">
+                                <select id="drPagi1">
+                                    <option value="">-- Pilih Dokter --</option>
+                                    <option value="dr. Sukresno Tjahjo W., M.Kes">dr. Sukresno Tjahjo W., M.Kes</option>
+                                    <option value="dr. Felicia Putri Hartono">dr. Felicia Putri Hartono</option>
+                                    <option value="dr. Syntia Desy Arisandi">dr. Syntia Desy Arisandi</option>
+                                    <option value="dr. Imam Fadli">dr. Imam Fadli</option>
+                                    <option value="dr. Deo Sanjaya">dr. Deo Sanjaya</option>
+                                    <option value="dr. Evva Mardiyana">dr. Evva Mardiyana</option>
+                                    <option value="dr. Farah Shania">dr. Farah Shania</option>
+                                    <option value="dr. Ratna Dewi">dr. Ratna Dewi</option>
+                                </select>
+                                <input type="text" id="drExtraPagi1" value="" placeholder="(Pengganti)" title="Nama dokter pengganti/tambahan (misal: Budi) akan ditambahkan dalam kurung()">
+                            </div>
                         </div>
-                        <div class="input-sub-item">
-                            <label for="pdRj">Rawat Jalan (RJ):</label>
-                            <input type="number" id="pdRj" value="0" min="0">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="input-group">
+                                <label>Jumlah Pasien</label>
+                                <input type="text" disabled id="displayJmlPagi1" value="0" class="bg-gray-200">
+                            </div>
+                            <div class="input-group">
+                                <label>Rawat Inap (MRS)</label>
+                                <input type="text" disabled id="displayMrsPagi1" value="0" class="bg-gray-200">
+                            </div>
                         </div>
                     </div>
-                </div>
+                    <h3 class="text-base font-semibold pt-2 text-sky-700 border-t pt-3">Rincian Kedatangan Pasien</h3>
+                    <div class="grid grid-cols-2 gap-3 p-3 bg-white rounded-lg border border-sky-200">
+                        
+                        <div class="col-span-2 text-sm font-medium text-gray-600">Rujukan PKM:</div>
+                        <div class="input-group"><label>Rawat Inap (RI)</label><input type="number" id="pkmRIPagi1" value="0" min="0"></div>
+                        <div class="input-group"><label>Rawat Jalan (RJ)</label><input type="number" id="pkmRJPagi1" value="0" min="0"></div>
+                        
+                        <div class="col-span-2 text-sm font-medium text-gray-600">Bawa Surat Rujukan:</div>
+                        <div class="input-group"><label>Rawat Inap (RI)</label><input type="number" id="rujukRIPagi1" value="0" min="0"></div>
+                        <div class="input-group"><label>Rawat Jalan (RJ)</label><input type="number" id="rujukRJPagi1" value="0" min="0"></div>
 
-                <div class="input-pair-wrapper">
-                    <label for="bedahRi" class="main-label">Bedah Umum</label>
-                    <div class="input-sub-pair">
-                        <div class="input-sub-item">
-                            <label for="bedahRi">Rawat Inap (RI):</label>
-                            <input type="number" id="bedahRi" value="0" min="0">
-                        </div>
-                        <div class="input-sub-item">
-                            <label for="bedahRj">Rawat Jalan (RJ):</label>
-                            <input type="number" id="bedahRj" value="0" min="0">
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="input-pair-wrapper">
-                    <label for="anakRi" class="main-label">Anak</label>
-                    <div class="input-sub-pair">
-                        <div class="input-sub-item">
-                            <label for="anakRi">Rawat Inap (RI):</label>
-                            <input type="number" id="anakRi" value="0" min="0">
-                        </div>
-                        <div class="input-sub-item">
-                            <label for="anakRj">Rawat Jalan (RJ):</label>
-                            <input type="number" id="anakRj" value="0" min="0">
-                        </div>
-                    </div>
-                </div>
+                        <div class="col-span-2 text-sm font-medium text-gray-600">Bawa Hasil Lab:</div>
+                        <div class="input-group"><label>Rawat Inap (RI)</label><input type="number" id="labRIPagi1" value="0" min="0"></div>
+                        <div class="input-group"><label>Rawat Jalan (RJ)</label><input type="number" id="labRJPagi1" value="0" min="0"></div>
 
-                <div class="input-pair-wrapper">
-                    <label for="syarafRi" class="main-label">Syaraf</label>
-                    <div class="input-sub-pair">
-                        <div class="input-sub-item">
-                            <label for="syarafRi">Rawat Inap (RI):</label>
-                            <input type="number" id="syarafRi" value="0" min="0">
-                        </div>
-                        <div class="input-sub-item">
-                            <label for="syarafRj">Rawat Jalan (RJ):</label>
-                            <input type="number" id="syarafRj" value="0" min="0">
-                        </div>
-                    </div>
-                </div>
+                        <div class="col-span-2 text-sm font-medium text-gray-600">Diantar Siaga Desa:</div>
+                        <div class="input-group"><label>Rawat Inap (RI)</label><input type="number" id="desaRIPagi1" value="0" min="0"></div>
+                        <div class="input-group"><label>Rawat Jalan (RJ)</label><input type="number" id="desaRJPagi1" value="0" min="0"></div>
 
-                <div class="input-pair-wrapper">
-                    <label for="obgynRi" class="main-label">Obgyn</label>
-                    <div class="input-sub-pair">
-                        <div class="input-sub-item">
-                            <label for="obgynRi">Rawat Inap (RI):</label>
-                            <input type="number" id="obgynRi" value="0" min="0">
-                        </div>
-                        <div class="input-sub-item">
-                            <label for="obgynRj">Rawat Jalan (RJ):</label>
-                            <input type="number" id="obgynRj" value="0" min="0">
-                        </div>
+                        <div class="col-span-2 text-sm font-medium text-gray-600">Datang Sendiri:</div>
+                        <div class="input-group"><label>Rawat Inap (RI)</label><input type="number" id="sendiriRIPagi1" value="0" min="0"></div>
+                        <div class="input-group"><label>Rawat Jalan (RJ)</label><input type="number" id="sendiriRJPagi1" value="0" min="0"></div>
                     </div>
-                </div>
+                    
+                    <h3 class="text-base font-semibold pt-2 text-gray-700 border-t pt-3">Rincian Pembayaran</h3>
+                    <div class="input-row">
+                        <div class="input-group"><label>BPJS</label><input type="number" id="bpjsPagi1" value="0" min="0"></div>
+                        <div class="input-group"><label>Umum</label><input type="number" id="umumPagi1" value="0" min="0"></div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Rincian Keterangan BPJS (Per baris)</label>
+                        <textarea id="bpjsKetPagi1" rows="3" placeholder="Contoh:&#10;1. Tn X abc"></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label>Rincian Keterangan UMUM (Per baris)</label>
+                        <textarea id="umumKetPagi1" rows="3" placeholder="Contoh:&#10;1. Tn X abc"></textarea>
+                    </div>
 
-                <div class="input-pair-wrapper">
-                    <label for="orthopediRi" class="main-label">Orthopedi</label>
-                    <div class="input-sub-pair">
-                        <div class="input-sub-item">
-                            <label for="orthopediRi">Rawat Inap (RI):</label>
-                            <input type="number" id="orthopediRi" value="0" min="0">
-                        </div>
-                        <div class="input-sub-item">
-                            <label for="orthopediRj">Rawat Jalan (RJ):</label>
-                            <input type="number" id="orthopediRj" value="0" min="0">
-                        </div>
+                    <h3 class="text-base font-semibold pt-2 text-gray-700 border-t pt-3">Rincian Status Akhir</h3>
+                    <div class="input-group">
+                        <label>Rincian Keterangan DOA (Per baris)</label>
+                        <textarea id="doaKetPagi1" rows="2" placeholder="Contoh:&#10;1. Tn X DOA"></textarea>
                     </div>
-                </div>
-
-                <div class="input-pair-wrapper">
-                    <label for="mataRi" class="main-label">Mata</label>
-                    <div class="input-sub-pair">
-                        <div class="input-sub-item">
-                            <label for="mataRi">Rawat Inap (RI):</label>
-                            <input type="number" id="mataRi" value="0" min="0">
-                        </div>
-                        <div class="input-sub-item">
-                            <label for="mataRj">Rawat Jalan (RJ):</label>
-                            <input type="number" id="mataRj" value="0" min="0">
-                        </div>
+                    <div class="input-group">
+                        <label>Rincian Keterangan Meninggal (Per baris)</label>
+                        <textarea id="meninggalKetPagi1" rows="2" placeholder="Contoh:&#10;Tn X meninggal"></textarea>
                     </div>
-                </div>
-                <div class="input-pair-wrapper" style="height: 0; margin-bottom: 0; visibility: hidden; padding: 0; border: none; background: none;"></div> 
+                    <div class="input-group">
+                        <label>Rincian Keterangan MCU (Per baris)</label>
+                        <textarea id="mcuKetPagi1" rows="2" placeholder="Contoh:&#10;1. Tn X MCU surat sehat"></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label>Rujukan dari Puskesmas (Per baris)</label>
+                        <textarea id="pkmRujukKetPagi1" rows="2" placeholder="Contoh:&#10;1. An Y rujukan PKM Dsn A"></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label>Rujuk ke Rumah Sakit Lain (Per baris)</label>
+                        <textarea id="rsLainKetPagi1" rows="2" placeholder="Contoh:&#10;1. Ny Z rujukan ke RS A"></textarea>
+                    </div>
+                    </div>
             </div>
 
-            <div class="input-group">
-                <h3>3. Kejadian Khusus (Disertai Keterangan Multi-Baris)</h3>
-                
-                <div class="input-khusus-wrapper">
-                    <label for="dirujuk" class="main-label-khusus">Pasien Dirujuk:</label>
-                    <div class="input-sub-pair-khusus">
-                        <div class="input-khusus-jumlah">
-                            <label for="dirujuk">Jumlah:</label>
-                            <input type="number" id="dirujuk" value="0" min="0">
+            <div class="shift-block" data-shift="Pagi2">
+                <div class="shift-header bg-teal-600 cursor-pointer" id="headerPagi2">
+                    <span role="img" aria-label="emoji" class="mr-3 text-xl">☀️</span> Shift Pagi (07.00 - 14.00)
+                </div>
+                <div class="p-4 bg-teal-50 rounded-b-xl space-y-4 hidden" id="contentPagi2">
+                    <div class="space-y-4">
+                        <div class="input-group">
+                            <label for="drPagi2">Nama Dokter</label>
+                            <div class="doctor-inputs">
+                                <select id="drPagi2">
+                                    <option value="">-- Pilih Dokter --</option>
+                                    <option value="dr. Sukresno Tjahjo W., M.Kes">dr. Sukresno Tjahjo W., M.Kes</option>
+                                    <option value="dr. Felicia Putri Hartono">dr. Felicia Putri Hartono</option>
+                                    <option value="dr. Syntia Desy Arisandi">dr. Syntia Desy Arisandi</option>
+                                    <option value="dr. Imam Fadli">dr. Imam Fadli</option>
+                                    <option value="dr. Deo Sanjaya">dr. Deo Sanjaya</option>
+                                    <option value="dr. Evva Mardiyana">dr. Evva Mardiyana</option>
+                                    <option value="dr. Farah Shania">dr. Farah Shania</option>
+                                    <option value="dr. Ratna Dewi">dr. Ratna Dewi</option>
+                                </select>
+                                <input type="text" id="drExtraPagi2" value="" placeholder="(Pengganti)" title="Nama dokter pengganti/tambahan (misal: Budi) akan ditambahkan dalam kurung()">
+                            </div>
                         </div>
-                        <div class="input-khusus-keterangan">
-                            <label for="dirujukKeterangan">Keterangan (Opsional, Multi-Baris):</label>
-                            <textarea id="dirujukKeterangan" placeholder="Cth:&#10;1. Pasien A dirujuk ke RSUD X&#10;2. Pasien B dirujuk ke RS Y"></textarea>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="input-group">
+                                <label>Jumlah Pasien</label>
+                                <input type="text" disabled id="displayJmlPagi2" value="0" class="bg-gray-200">
+                            </div>
+                            <div class="input-group">
+                                <label>Rawat Inap (MRS)</label>
+                                <input type="text" disabled id="displayMrsPagi2" value="0" class="bg-gray-200">
+                            </div>
                         </div>
                     </div>
-                </div>
+                    <h3 class="text-base font-semibold pt-2 text-sky-700 border-t pt-3">Rincian Kedatangan Pasien</h3>
+                    <div class="grid grid-cols-2 gap-3 p-3 bg-white rounded-lg border border-sky-200">
+                        
+                        <div class="col-span-2 text-sm font-medium text-gray-600">Rujukan PKM:</div>
+                        <div class="input-group"><label>Rawat Inap (RI)</label><input type="number" id="pkmRIPagi2" value="0" min="0"></div>
+                        <div class="input-group"><label>Rawat Jalan (RJ)</label><input type="number" id="pkmRJPagi2" value="0" min="0"></div>
 
-                <div class="input-khusus-wrapper">
-                    <label for="ditolak" class="main-label-khusus">Pasien Ditolak:</label>
-                    <div class="input-sub-pair-khusus">
-                        <div class="input-khusus-jumlah">
-                            <label for="ditolak">Jumlah:</label>
-                            <input type="number" id="ditolak" value="0" min="0">
-                        </div>
-                        <div class="input-khusus-keterangan">
-                            <label for="ditolakKeterangan">Keterangan (Opsional, Multi-Baris):</label>
-                            <textarea id="ditolakKeterangan" placeholder="Cth:&#10;1. 1 kasus karena IGD penuh&#10;2. 1 kasus karena tidak ada kamar"></textarea>
-                        </div>
-                    </div>
-                </div>
+                        <div class="col-span-2 text-sm font-medium text-gray-600">Bawa Surat Rujukan:</div>
+                        <div class="input-group"><label>Rawat Inap (RI)</label><input type="number" id="rujukRIPagi2" value="0" min="0"></div>
+                        <div class="input-group"><label>Rawat Jalan (RJ)</label><input type="number" id="rujukRJPagi2" value="0" min="0"></div>
 
-                <div class="input-khusus-wrapper">
-                    <label for="rujukanMasuk" class="main-label-khusus">Pasien Rujukan (Masuk):</label>
-                    <div class="input-sub-pair-khusus">
-                        <div class="input-khusus-jumlah">
-                            <label for="rujukanMasuk">Jumlah:</label>
-                            <input type="number" id="rujukanMasuk" value="0" min="0">
-                        </div>
-                        <div class="input-khusus-keterangan">
-                            <label for="rujukanMasukKeterangan">Keterangan (Opsional, Multi-Baris):</label>
-                            <textarea id="rujukanMasukKeterangan" placeholder="Cth:&#10;1. Rujukan dari Puskesmas X (DHF)&#10;2. Rujukan dari Bidan Y"></textarea>
-                        </div>
+                        <div class="col-span-2 text-sm font-medium text-gray-600">Bawa Hasil Lab:</div>
+                        <div class="input-group"><label>Rawat Inap (RI)</label><input type="number" id="labRIPagi2" value="0" min="0"></div>
+                        <div class="input-group"><label>Rawat Jalan (RJ)</label><input type="number" id="labRJPagi2" value="0" min="0"></div>
+
+                        <div class="col-span-2 text-sm font-medium text-gray-600">Diantar Siaga Desa:</div>
+                        <div class="input-group"><label>Rawat Inap (RI)</label><input type="number" id="desaRIPagi2" value="0" min="0"></div>
+                        <div class="input-group"><label>Rawat Jalan (RJ)</label><input type="number" id="desaRJPagi2" value="0" min="0"></div>
+
+                        <div class="col-span-2 text-sm font-medium text-gray-600">Datang Sendiri:</div>
+                        <div class="input-group"><label>Rawat Inap (RI)</label><input type="number" id="sendiriRIPagi2" value="0" min="0"></div>
+                        <div class="input-group"><label>Rawat Jalan (RJ)</label><input type="number" id="sendiriRJPagi2" value="0" min="0"></div>
                     </div>
-                </div>
-                
-                <div class="input-khusus-wrapper">
-                    <label for="meninggal" class="main-label-khusus">Pasien Meninggal < 8 Jam:</label>
-                    <div class="input-sub-pair-khusus">
-                        <div class="input-khusus-jumlah">
-                            <label for="meninggal">Jumlah:</label>
-                            <input type="number" id="meninggal" value="0" min="0">
-                        </div>
-                        <div class="input-khusus-keterangan">
-                            <label for="meninggalKeterangan">Keterangan (Opsional, Multi-Baris):</label>
-                            <textarea id="meninggalKeterangan" placeholder="Cth:&#10;1. Tn. A (Gagal Nafas)&#10;2. An. B (DHF Syok)"></textarea>
-                        </div>
+
+                    <h3 class="text-base font-semibold pt-2 text-gray-700 border-t pt-3">Rincian Pembayaran</h3>
+                    <div class="input-row">
+                        <div class="input-group"><label>BPJS</label><input type="number" id="bpjsPagi2" value="0" min="0"></div>
+                        <div class="input-group"><label>Umum</label><input type="number" id="umumPagi2" value="0" min="0"></div>
                     </div>
-                </div>
-                
-                <div class="input-khusus-wrapper">
-                    <label for="doa" class="main-label-khusus">Pasien DOA (Dead on Arrival):</label>
-                    <div class="input-sub-pair-khusus">
-                        <div class="input-khusus-jumlah">
-                            <label for="doa">Jumlah:</label>
-                            <input type="number" id="doa" value="0" min="0">
-                        </div>
-                        <div class="input-khusus-keterangan">
-                            <label for="doaKeterangan">Keterangan (Opsional, Multi-Baris):</label>
-                            <textarea id="doaKeterangan" placeholder="Cth:&#10;1. Kecelakaan Lalu Lintas (Trauma Berat)&#10;2. Gantung Diri"></textarea>
-                        </div>
+
+                    <div class="input-group">
+                        <label>Rincian Keterangan BPJS (Per baris)</label>
+                        <textarea id="bpjsKetPagi2" rows="3" placeholder="Contoh:&#10;1. Tn X abc"></textarea>
                     </div>
-                </div>
-                
+                    <div class="input-group">
+                        <label>Rincian Keterangan UMUM (Per baris)</label>
+                        <textarea id="umumKetPagi2" rows="3" placeholder="Contoh:&#10;1. Tn X abc"></textarea>
+                    </div>
+                    
+                    <h3 class="text-base font-semibold pt-2 text-gray-700 border-t pt-3">Rincian Status Akhir</h3>
+                    <div class="input-group">
+                        <label>Rincian Keterangan DOA (Per baris)</label>
+                        <textarea id="doaKetPagi2" rows="2" placeholder="Contoh:&#10;1. Tn X DOA"></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label>Rincian Keterangan Meninggal (Per baris)</label>
+                        <textarea id="meninggalKetPagi2" rows="2" placeholder="Contoh:&#10;1. Tn X meninggal"></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label>Rincian Keterangan MCU (Per baris)</label>
+                        <textarea id="mcuKetPagi2" rows="2" placeholder="Contoh:&#10;1. Tn X MCU surat sehat"></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label>Rujukan dari Puskesmas (Per baris)</label>
+                        <textarea id="pkmRujukKetPagi2" rows="2" placeholder="Contoh:&#10;1. An Y rujukan PKM Dsn A"></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label>Rujuk ke Rumah Sakit Lain (Per baris)</label>
+                        <textarea id="rsLainKetPagi2" rows="2" placeholder="Contoh:&#10;1. Ny Z rujukan ke RS A"></textarea>
+                    </div>
+                    </div>
             </div>
-            
-            <div class="input-controls">
-                <button onclick="tambahData()">✅ Simpan/Perbarui Data Harian</button>
-                <button onclick="hapusDataPerTanggal()" class="delete-date-button">❌ Hapus Data Tanggal Ini</button>
-                <button onclick="resetInputFields(true)" class="reset-button">🔄 Reset Input</button>
-                <button onclick="hapusSemuaData()" class="delete-button">🗑️ Hapus Semua Data</button>
+
+            <div class="shift-block" data-shift="Siang">
+                <div class="shift-header bg-orange-500 cursor-pointer" id="headerSiang">
+                    <span role="img" aria-label="emoji" class="mr-3 text-xl">🌆</span> Shift Siang (14.00 - 21.00)
+                </div>
+                <div class="p-4 bg-orange-50 rounded-b-xl space-y-4 hidden" id="contentSiang">
+                    <div class="space-y-4">
+                        <div class="input-group">
+                            <label for="drSiang">Nama Dokter</label>
+                            <div class="doctor-inputs">
+                                <select id="drSiang">
+                                    <option value="">-- Pilih Dokter --</option>
+                                    <option value="dr. Sukresno Tjahjo W., M.Kes">dr. Sukresno Tjahjo W., M.Kes</option>
+                                    <option value="dr. Felicia Putri Hartono">dr. Felicia Putri Hartono</option>
+                                    <option value="dr. Syntia Desy Arisandi">dr. Syntia Desy Arisandi</option>
+                                    <option value="dr. Imam Fadli">dr. Imam Fadli</option>
+                                    <option value="dr. Deo Sanjaya">dr. Deo Sanjaya</option>
+                                    <option value="dr. Evva Mardiyana">dr. Evva Mardiyana</option>
+                                    <option value="dr. Farah Shania">dr. Farah Shania</option>
+                                    <option value="dr. Ratna Dewi">dr. Ratna Dewi</option>
+                                </select>
+                                <input type="text" id="drExtraSiang" value="" placeholder="(Pengganti)" title="Nama dokter pengganti/tambahan (misal: Budi) akan ditambahkan dalam kurung()">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="input-group">
+                                <label>Jumlah Pasien</label>
+                                <input type="text" disabled id="displayJmlSiang" value="0" class="bg-gray-200">
+                            </div>
+                            <div class="input-group">
+                                <label>Rawat Inap (MRS)</label>
+                                <input type="text" disabled id="displayMrsSiang" value="0" class="bg-gray-200">
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="text-base font-semibold pt-2 text-sky-700 border-t pt-3">Rincian Kedatangan Pasien</h3>
+                    <div class="grid grid-cols-2 gap-3 p-3 bg-white rounded-lg border border-sky-200">
+                        
+                        <div class="col-span-2 text-sm font-medium text-gray-600">Rujukan PKM:</div>
+                        <div class="input-group"><label>Rawat Inap (RI)</label><input type="number" id="pkmRISiang" value="0" min="0"></div>
+                        <div class="input-group"><label>Rawat Jalan (RJ)</label><input type="number" id="pkmRJSiang" value="0" min="0"></div>
+                        
+                        <div class="col-span-2 text-sm font-medium text-gray-600">Bawa Surat Rujukan:</div>
+                        <div class="input-group"><label>Rawat Inap (RI)</label><input type="number" id="rujukRISiang" value="0" min="0"></div>
+                        <div class="input-group"><label>Rawat Jalan (RJ)</label><input type="number" id="rujukRJSiang" value="0" min="0"></div>
+
+                        <div class="col-span-2 text-sm font-medium text-gray-600">Bawa Hasil Lab:</div>
+                        <div class="input-group"><label>Rawat Inap (RI)</label><input type="number" id="labRISiang" value="0" min="0"></div>
+                        <div class="input-group"><label>Rawat Jalan (RJ)</label><input type="number" id="labRJSiang" value="0" min="0"></div>
+
+                        <div class="col-span-2 text-sm font-medium text-gray-600">Diantar Siaga Desa:</div>
+                        <div class="input-group"><label>Rawat Inap (RI)</label><input type="number" id="desaRISiang" value="0" min="0"></div>
+                        <div class="input-group"><label>Rawat Jalan (RJ)</label><input type="number" id="desaRJSiang" value="0" min="0"></div>
+
+                        <div class="col-span-2 text-sm font-medium text-gray-600">Datang Sendiri:</div>
+                        <div class="input-group"><label>Rawat Inap (RI)</label><input type="number" id="sendiriRISiang" value="0" min="0"></div>
+                        <div class="input-group"><label>Rawat Jalan (RJ)</label><input type="number" id="sendiriRJSiang" value="0" min="0"></div>
+                    </div>
+
+                    <h3 class="text-base font-semibold pt-2 text-gray-700 border-t pt-3">Rincian Pembayaran</h3>
+                    <div class="input-row">
+                        <div class="input-group"><label>BPJS</label><input type="number" id="bpjsSiang" value="0" min="0"></div>
+                        <div class="input-group"><label>Umum</label><input type="number" id="umumSiang" value="0" min="0"></div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Rincian Keterangan BPJS (Per baris)</label>
+                        <textarea id="bpjsKetSiang" rows="3" placeholder="Contoh:&#10;1. Tn X abc"></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label>Rincian Keterangan UMUM (Per baris)</label>
+                        <textarea id="umumKetSiang" rows="3" placeholder="Contoh:&#10;1. Tn X abc"></textarea>
+                    </div>
+
+                    <h3 class="text-base font-semibold pt-2 text-gray-700 border-t pt-3">Rincian Status Akhir</h3>
+                    <div class="input-group">
+                        <label>Rincian Keterangan DOA (Per baris)</label>
+                        <textarea id="doaKetSiang" rows="2" placeholder="Contoh:&#10;1. Tn X DOA"></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label>Rincian Keterangan Meninggal (Per baris)</label>
+                        <textarea id="meninggalKetSiang" rows="2" placeholder="Contoh:&#10;1. Tn X meninggal"></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label>Rincian Keterangan MCU (Per baris)</label>
+                        <textarea id="mcuKetSiang" rows="2" placeholder="Contoh:&#10;1. Tn X MCU surat sehat"></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label>Rujukan dari Puskesmas (Per baris)</label>
+                        <textarea id="pkmRujukKetSiang" rows="2" placeholder="Contoh:&#10;1. An Y rujukan PKM Dsn A"></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label>Rujuk ke Rumah Sakit Lain (Per baris)</label>
+                        <textarea id="rsLainKetSiang" rows="2" placeholder="Contoh:&#10;1. Ny Z rujukan ke RS A"></textarea>
+                    </div>
+                    </div>
+            </div>
+
+            <div class="shift-block" data-shift="Malam">
+                <div class="shift-header bg-purple-900 cursor-pointer" id="headerMalam">
+                    <span role="img" aria-label="emoji" class="mr-3 text-xl">🌃</span> Shift Malam (21.00 - 00.00)
+                </div>
+                <div class="p-4 bg-purple-50 rounded-b-xl space-y-4 hidden" id="contentMalam">
+                    <div class="space-y-4">
+                        <div class="input-group">
+                            <label for="drMalam">Nama Dokter</label>
+                            <div class="doctor-inputs">
+                                <select id="drMalam">
+                                    <option value="">-- Pilih Dokter --</option>
+                                    <option value="dr. Sukresno Tjahjo W., M.Kes">dr. Sukresno Tjahjo W., M.Kes</option>
+                                    <option value="dr. Felicia Putri Hartono">dr. Felicia Putri Hartono</option>
+                                    <option value="dr. Syntia Desy Arisandi">dr. Syntia Desy Arisandi</option>
+                                    <option value="dr. Imam Fadli">dr. Imam Fadli</option>
+                                    <option value="dr. Deo Sanjaya">dr. Deo Sanjaya</option>
+                                    <option value="dr. Evva Mardiyana">dr. Evva Mardiyana</option>
+                                    <option value="dr. Farah Shania">dr. Farah Shania</option>
+                                    <option value="dr. Ratna Dewi">dr. Ratna Dewi</option>
+                                </select>
+                                <input type="text" id="drExtraMalam" value="" placeholder="(Pengganti)" title="Nama dokter pengganti/tambahan (misal: Budi) akan ditambahkan dalam kurung()">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="input-group">
+                                <label>Jumlah Pasien</label>
+                                <input type="text" disabled id="displayJmlMalam" value="0" class="bg-gray-200">
+                            </div>
+                            <div class="input-group">
+                                <label>Rawat Inap (MRS)</label>
+                                <input type="text" disabled id="displayMrsMalam" value="0" class="bg-gray-200">
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="text-base font-semibold pt-2 text-sky-700 border-t pt-3">Rincian Kedatangan Pasien</h3>
+                    <div class="grid grid-cols-2 gap-3 p-3 bg-white rounded-lg border border-sky-200">
+                        
+                        <div class="col-span-2 text-sm font-medium text-gray-600">Rujukan PKM:</div>
+                        <div class="input-group"><label>Rawat Inap (RI)</label><input type="number" id="pkmRIMalam" value="0" min="0"></div>
+                        <div class="input-group"><label>Rawat Jalan (RJ)</label><input type="number" id="pkmRJMalam" value="0" min="0"></div>
+                        
+                        <div class="col-span-2 text-sm font-medium text-gray-600">Bawa Surat Rujukan:</div>
+                        <div class="input-group"><label>Rawat Inap (RI)</label><input type="number" id="rujukRIMalam" value="0" min="0"></div>
+                        <div class="input-group"><label>Rawat Jalan (RJ)</label><input type="number" id="rujukRJMalam" value="0" min="0"></div>
+
+                        <div class="col-span-2 text-sm font-medium text-gray-600">Bawa Hasil Lab:</div>
+                        <div class="input-group"><label>Rawat Inap (RI)</label><input type="number" id="labRIMalam" value="0" min="0"></div>
+                        <div class="input-group"><label>Rawat Jalan (RJ)</label><input type="number" id="labRJMalam" value="0" min="0"></div>
+
+                        <div class="col-span-2 text-sm font-medium text-gray-600">Diantar Siaga Desa:</div>
+                        <div class="input-group"><label>Rawat Inap (RI)</label><input type="number" id="desaRIMalam" value="0" min="0"></div>
+                        <div class="input-group"><label>Rawat Jalan (RJ)</label><input type="number" id="desaRJMalam" value="0" min="0"></div>
+
+                        <div class="col-span-2 text-sm font-medium text-gray-600">Datang Sendiri:</div>
+                        <div class="input-group"><label>Rawat Inap (RI)</label><input type="number" id="sendiriRIMalam" value="0" min="0"></div>
+                        <div class="input-group"><label>Rawat Jalan (RJ)</label><input type="number" id="sendiriRJMalam" value="0" min="0"></div>
+                    </div>
+
+                    <h3 class="text-base font-semibold pt-2 text-gray-700 border-t pt-3">Rincian Pembayaran</h3>
+                    <div class="input-row">
+                        <div class="input-group"><label>BPJS</label><input type="number" id="bpjsMalam" value="0" min="0"></div>
+                        <div class="input-group"><label>Umum</label><input type="number" id="umumMalam" value="0" min="0"></div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Rincian Keterangan BPJS (Per baris)</label>
+                        <textarea id="bpjsKetMalam" rows="3" placeholder="Contoh:&#10;1. Tn X abc"></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label>Rincian Keterangan UMUM (Per baris)</label>
+                        <textarea id="umumKetMalam" rows="3" placeholder="Contoh:&#10;1. Tn X abc"></textarea>
+                    </div>
+
+                    <h3 class="text-base font-semibold pt-2 text-gray-700 border-t pt-3">Rincian Status Akhir</h3>
+                    <div class="input-group">
+                        <label>Rincian Keterangan DOA (Per baris)</label>
+                        <textarea id="doaKetMalam" rows="2" placeholder="Contoh:&#10;1. Tn X DOA"></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label>Rincian Keterangan Meninggal (Per baris)</label>
+                        <textarea id="meninggalKetMalam" rows="2" placeholder="Contoh:&#10;1. Tn X meninggal"></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label>Rincian Keterangan MCU (Per baris)</label>
+                        <textarea id="mcuKetMalam" rows="2" placeholder="Contoh:&#10;1. Tn X MCU surat sehat"></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label>Rujukan dari Puskesmas (Per baris)</label>
+                        <textarea id="pkmRujukKetMalam" rows="2" placeholder="Contoh:&#10;1. An Y rujukan PKM Dsn A"></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label>Rujuk ke Rumah Sakit Lain (Per baris)</label>
+                        <textarea id="rsLainKetMalam" rows="2" placeholder="Contoh:&#10;1. Ny Z rujukan ke RS A"></textarea>
+                    </div>
+                    </div>
             </div>
         </div>
 
-        <div class="report-section">
-            <h2>Laporan Data Bulanan (Tanggal ke Samping)</h2>
+        <button id="resetBtn" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-xl mt-8 transition duration-150 shadow-md hover:shadow-lg">
+            <span role="img" aria-label="emoji" class="mr-1">🗑️</span> Hapus Semua Data
+        </button>
+        
+        <div class="mt-8">
+            <h2 class="text-xl font-semibold text-gray-800 mb-2">Hasil Laporan Siap Salin</h2>
+            <textarea id="outputReport" class="w-full h-64 bg-gray-100 text-gray-800 p-4 border border-gray-300 rounded-xl font-mono text-sm resize-none" readonly placeholder="Laporan yang sudah terformat akan muncul di sini dan diperbarui secara otomatis saat Anda memasukkan data." style="white-space: pre;"></textarea>
             
-            <div id="chart-container" style="max-width: 100%; height: 350px; margin-bottom: 30px; border: 1px solid #e0e0e0; border-radius: 8px; padding: 10px; background-color: #ffffff;">
-                <canvas id="monthly-chart"></canvas>
+            <div id="doctorWarningMessage" class="mt-3 p-3 bg-red-100 border border-red-400 text-red-700 rounded-xl font-medium hidden">
+                ⚠️ **Peringatan!** Anda belum memasukkan nama dokter untuk shift berikut: <span id="missingDoctorsList"></span>
             </div>
-            <div class="report-controls">
-                <select id="bulan-filter" onchange="tampilkanLaporan()"></select>
-                <button onclick="eksporLaporanXLSX_Transpose()" class="export-button" style="background-color: #1a237e;">
-                    📥 Ekspor XLSX (Landscape)
+            
+            <button id="copyBtn" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-4 rounded-xl mt-3 transition duration-150 shadow-lg hover:shadow-xl" disabled>
+                <span role="img" aria-label="emoji" class="mr-1">📋</span> Salin Laporan ke Clipboard
+            </button>
+            <div id="copyMessage" class="mt-2 text-sm text-center font-medium hidden">Berhasil disalin!</div>
+        </div>
+
+        <div class="mt-6 pt-4 border-t border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-800 mb-3 text-center">Tautan Cepat</h3>
+            <div class="flex flex-col md:flex-row gap-3">
+                <button id="navBtn1" class="flex-1 bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 px-4 rounded-xl transition duration-150 shadow-md">
+                    <span role="img" aria-label="emoji" class="mr-1">💻</span> Laporan Bulanan
+                </button>
+                <button id="navBtn2" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl transition duration-150 shadow-md">
+                    <span role="img" aria-label="emoji" class="mr-1">📑</span> Kalkulator Medis
+                </button>
+                <button id="navBtn3" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-xl transition duration-150 shadow-md">
+                    <span role="img" aria-label="emoji" class="mr-1">🔗</span> Gdrive IGD
                 </button>
             </div>
-            
-            <div style="overflow-x: auto;">
-                <table id="laporan-tabel"></table>
+        </div>
+        <div class="mt-8 border-t pt-6">
+            <div id="changelogHeader" class="flex justify-between items-center cursor-pointer mb-2">
+                <h2 class="text-xl font-semibold text-gray-800">Changelog Aplikasi</h2>
+                <svg id="changelogIcon" class="w-5 h-5 text-gray-500 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
             </div>
             
-            <div id="total-nilai"></div>
-        </div>
-        
-        <div class="changelog-section">
-            <details>
-                <summary>Riwayat Perubahan Aplikasi (Versi 1.2)</summary>
-                <ul id="changelog-list-app" class="changelog-list">
-                    <li class="changelog-item">
-                        <strong>Versi 1.2 Update (Baru):</strong> Mengubah urutan kolom input Rawat Jalan (RJ) dan Rawat Inap (RI) di bagian 'Data Spesialisasi' menjadi **Rawat Inap (RI) &rarr; Rawat Jalan (RJ)** (sesuai permintaan user).
-                    </li>
-                    <li class="changelog-item">
-                        <strong>1. Pindah Server (Versi 1.0):</strong> Menggunakan **Firebase Cloud Firestore** untuk menyimpan data harian.
-                    </li>
-                    <li class="changelog-item">
-                        <strong>2. Pembaruan Laporan Visual (Versi 1.0):</strong> Perubahan tampilan grafik kunjungan pasien bulanan (menggunakan Chart.js).
-                    </li>
-                    <li class="changelog-item">
-                        <strong>3. Format Ekspor Baru (Versi 1.0):</strong> Mengganti format file hasil laporan menjadi **XLSX** (sebelumnya CSV).
-                    </li>
-                    <li class="changelog-item">
-                        <strong>4. Hapus Fungsi Lama (Versi 1.0):</strong> Menghapus fungsi ekspor file format CSV.
-                    </li>
+            <div id="changelogContent" class="hidden">
+                <ul class="list-disc list-inside text-gray-600 space-y-2 pl-4">
+                    <li class="font-semibold">Versi Terbaru</li>
+                    <ul class="list-circle list-inside ml-4 text-sm space-y-1">
+                        <li>[10 Des 2025] **Penambahan kolom Rawat Inap (MRS) di samping Jumlah Pasien pada input tiap shift.</li>
+                        <li>[10 Des 2025] **Menambahkan fitur notifikasi peringatan jika user belum mengisi nama dokter tiap shift.</li>
+                        <li>[10 Des 2025] **Tombol salin tidak akan berfungsi jika nama dokter belum diisi.
+                    </ul>
+                    <li class="font-semibold">Versi Sebelumnya</li>
+                    <ul class="list-circle list-inside ml-4 text-sm space-y-1">
+                        <li>[29 Nov 2025] **Penambahan link di tombol tautan cepat ketiga (Data Gdrive IGD RS Dian Husada).</li>
+                        <li>[29 Nov 2025] **Perbaikan kolom kota sekarang dipatenkan, tidak perlu diketik.
+                        <li>[29 Nov 2025] **Platform Baru**: Aplikasi sekarang sepenuhnya berbasis website dan tidak memerlukan penggunaan *local file* lagi.</li>
+                        <li>[29 Nov 2025] **Tautan Cepat Diperbarui**: Memperbarui URL untuk tombol 'Laporan Bulanan' (ke `https://igdrsdh.github.io/Laporan-Bulanan/`) dan 'Kalkulator Medis' (ke `https://igdrsdh.github.io/Multitool-IGD/`).</li>
+                        <li>[29 Nov 2025] **Perbaikan Salin Laporan**: Mengganti metode *copy* ke `document.execCommand('copy')` untuk kompatibilitas yang lebih baik.</li>
+                        <li>[29 Nov 2025] **Perbaikan Tampilan Mode Gelap**: Penyesuaian warna teks untuk semua label, judul kecil, dan judul besar (h3) agar lebih kontras dan terbaca di Mode Gelap (Dark Mode).</li>
+                        <li>[29 Nov 2025] **Tampilan Rapi**: Semua shift kini tertutup secara default saat aplikasi dibuka.</li>
+                        <li>[28 Nov 2025] **Changelog**: Bagian Changelog dibuat menjadi *dropdown* yang dapat disembunyikan.</li>
+                        <li>[28 Nov 2025] **Data Umum Disederhanakan**: Menghapus kolom input "Jam Laporan" dan mematenkan waktu laporan menjadi **00.00**.</li>
+                        <li>[28 Nov 2025] **Status Akhir Ditingkatkan**: Memisahkan rincian keterangan rujukan menjadi 'Rujukan dari Puskesmas' dan 'Rujuk ke Rumah Sakit Lain'.</li>
+                        <li>[28 Nov 2025] **Kedatangan Ditingkatkan**: Menambahkan rincian jumlah pasien 'Rujukan PKM (Rawat Inap/Rawat Jalan)' di bagian Kedatangan Pasien.</li>
+                    </ul>
+                    <li class="font-semibold mt-4">Versi Sebelumnya</li>
+                    <ul class="list-circle list-inside ml-4 text-sm space-y-1">
+                        <li>[Awal] Fitur dasar pelaporan IGD per shift dengan penghitungan otomatis total pasien dan MRS.</li>
+                        <li>[Awal] Fitur simpan data otomatis menggunakan Local Storage.</li>
+                        <li>[Awal] Desain UI responsif dengan Tailwind CSS.</li>
+                    </ul>
                 </ul>
-            </details>
-            
-            <details style="margin-top: 10px;">
-                <summary style="font-size: 1.2em; font-weight: 600; color: #3949ab;">Riwayat Update Data Harian Terakhir</summary>
-                <ul id="changelog-list" class="changelog-list">
-                    <li>Memuat data perubahan...</li>
-                </ul>
-            </details>
+            </div>
         </div>
         </div>
 
     <script>
-        // 2. KONFIGURASI DAN INISIALISASI FIREBASE
-        const firebaseConfig = {
-            apiKey: "AIzaSyD4CJjUxraBYsuBMPf8mJKOJI8-wbLGedQ",
-            authDomain: "laporan-bulanan-b79f3.firebaseapp.com",
-            projectId: "laporan-bulanan-b79f3",
-            storageBucket: "laporan-bulanan-b79f3.firebasestorage.app",
-            messagingSenderId: "662666112252",
-            appId: "1:662666112252:web:31a296f176c6aead353b79",
-            measurementId: "G-5S04HKJEL1"
-        };
-        const app = firebase.initializeApp(firebaseConfig);
-        const db = app.firestore();
-        const COLLECTION_NAME = 'laporanHarian'; // Nama koleksi di Firestore
-        
-        // Daftar semua ID input angka dan textarea (keterangan)
-        const INPUT_IDS = [
-            'bpjsRj', 'bpjsRi', 'swastaRj', 'swastaRi', 'totalPasien', 'totalRi', 
-            'pdRj', 'pdRi', 'bedahRj', 'bedahRi', 'anakRj', 'anakRi', 'syarafRj', 'syarafRi', 
-            'obgynRj', 'obgynRi', 'orthopediRj', 'orthopediRi', 'mataRj', 'mataRi',
-            'dirujuk', 'dirujukKeterangan', 
-            'ditolak', 'ditolakKeterangan', 
-            'rujukanMasuk', 'rujukanMasukKeterangan', 
-            'meninggal', 'meninggalKeterangan', 
-            'doa', 'doaKeterangan' 
-        ];
+        // Simpan daftar semua nama shift dan ID konten untuk implementasi akordeon
+        const allShiftNames = ['Pagi1', 'Pagi2', 'Siang', 'Malam'];
+        const allContentIds = allShiftNames.map(name => `content${name}`);
 
-        const dataKeysReport = [
-            "tanggal", "bpjsRj", "bpjsRi", "swastaRj", "swastaRi", "totalPasien", "totalRi", 
-            "pdRj", "pdRi", "bedahRj", "bedahRi", "anakRj", "anakRi", "syarafRj", "syarafRi", "obgynRj", "obgynRi", "orthopediRj", "orthopediRi", "mataRj", "mataRi",
-            "dirujuk", "dirujukKeterangan", 
-            "ditolak", "ditolakKeterangan", 
-            "rujukanMasuk", "rujukanMasukKeterangan", 
-            "meninggal", "meninggalKeterangan", 
-            "doa", "doaKeterangan"
-        ];
-        
-        const rowClassMap = {
-            "BPJS RJ": "row-rj",
-            "BPJS RI": "row-ri",
-            "Swasta RJ": "row-rj",
-            "Swasta RI": "row-ri",
-            "Total Pasien": "row-umum",
-            "Total RI": "row-umum",
-            
-            "PD RJ": "row-rj",
-            "PD RI": "row-ri",
-            "Bedah RJ": "row-rj",
-            "Bedah RI": "row-ri",
-            "Anak RJ": "row-rj",
-            "Anak RI": "row-ri",
-            "Syaraf RJ": "row-rj",
-            "Syaraf RI": "row-ri",
-            "Obgyn RJ": "row-rj",
-            "Obgyn RI": "row-ri",
-            "Orthopedi RJ": "row-rj",
-            "Orthopedi RI": "row-ri",
-            "Mata RJ": "row-rj",
-            "Mata RI": "row-ri",
-            
-            "Dirujuk": "row-khusus",
-            "Ket. Dirujuk": "row-khusus",
-            "Ditolak": "row-khusus",
-            "Ket. Ditolak": "row-khusus",
-            "Rujukan Masuk": "row-khusus",
-            "Ket. Masuk": "row-khusus",
-            "Meninggal <8J": "row-khusus",
-            "Ket. Meninggal": "row-khusus",
-            "DOA": "row-khusus",
-            "Ket. DOA": "row-khusus"
-        };
-        
-        const kolomHeader = [
-            "Tanggal", 
-            "BPJS RJ", "BPJS RI", "Swasta RJ", "Swasta RI", "Total Pasien", "Total RI", 
-            "PD RJ", "PD RI", "Bedah RJ", "Bedah RI", "Anak RJ", "Anak RI", "Syaraf RJ", "Syaraf RI", "Obgyn RJ", "Obgyn RI", "Orthopedi RJ", "Orthopedi RI", "Mata RJ", "Mata RI",
-            "Dirujuk", "Ket. Dirujuk", 
-            "Ditolak", "Ket. Ditolak", 
-            "Rujukan Masuk", "Ket. Masuk", 
-            "Meninggal <8J", "Ket. Meninggal", 
-            "DOA", "Ket. DOA"
-        ];
-        
-        // --- START: FUNGSI BARU UNTUK CHANGELOG DATA ---
-
-        // Helper untuk memformat timestamp dari Firebase
-        function formatTimestamp(timestamp) {
-            if (!timestamp || !timestamp.toDate) return 'Tanggal tidak valid';
-            const date = timestamp.toDate();
-            const options = { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric', 
-                hour: '2-digit', 
-                minute: '2-digit',
-                second: '2-digit' 
-            };
-            return date.toLocaleString('id-ID', options);
+        // Fungsi utilitas untuk mengambil nilai input, mengembalikan 0 jika kosong atau bukan angka
+        function getNum(id) {
+            const val = document.getElementById(id).value;
+            // FIX KRITIS: Menggunakan Number() untuk konversi yang aman ke 0 jika input kosong ("")
+            // Penggunaan Number(val) || 0; akan mengubah null/""/invalid string menjadi 0.
+            return Number(val) || 0; 
         }
 
-        // FUNGSI FIREBASE: MUAT RIWAYAT PERUBAHAN (CHANGELOG DATA)
-        async function muatChangelog() {
-            // Menggunakan ID yang ditargetkan di HTML: id="changelog-list"
-            const listElement = document.getElementById('changelog-list');
-            listElement.innerHTML = '<li>Memuat data perubahan...</li>';
+        // Fungsi utilitas untuk mengambil nilai teks, mengembalikan string kosong jika kosong
+        function getStr(id) {
+            const element = document.getElementById(id);
+            return element ? element.value.trim() : '';
+        }
 
-            try {
-                // Ambil 10 dokumen terbaru, diurutkan berdasarkan timestamp (last update/creation)
-                const snapshot = await db.collection(COLLECTION_NAME)
-                                         .orderBy('timestamp', 'desc')
-                                         .limit(10)
-                                         .get();
-                                         
-                let htmlList = '';
-                if (snapshot.empty) {
-                    htmlList = '<li>Belum ada data harian yang tersimpan di Cloud Firestore.</li>';
-                } else {
-                    snapshot.forEach(doc => {
-                        const data = doc.data();
-                        const tanggal = data.tanggal;
-                        const timestamp = data.timestamp;
+        // --- FUNGSI: MENGAMBIL DAN MENGGABUNGKAN NAMA DOKTER (SELECT + INPUT TEKS) ---
+        function getDoctorName(shift) {
+            const drElement = document.getElementById(`dr${shift}`);
+            const drExtraElement = document.getElementById(`drExtra${shift}`);
+            
+            // Ambil nilai utama dari dropdown
+            let drName = drElement ? drElement.value.trim() : '';
+            // Ambil nilai tambahan dari input teks
+            const drExtra = drExtraElement ? drExtraElement.value.trim() : '';
 
-                        // Hitung total pasien untuk ditampilkan di changelog
-                        const totalPasien = (data.totalPasien || 0); // Ambil dari field totalPasien yang dihitung
-                        
-                        // Format tanggal dan waktu
-                        const waktuUpdate = formatTimestamp(timestamp);
-
-                        htmlList += `
-                            <li class="changelog-item">
-                                <strong>Laporan Tanggal: ${tanggal.split('-').reverse().join('/')}</strong> (Total Pasien: ${totalPasien.toLocaleString('id-ID')})
-                                <br>
-                                <small>Terakhir Disimpan/Diperbarui: ${waktuUpdate}</small>
-                            </li>
-                        `;
-                    });
+            if (drName) {
+                if (drExtra) {
+                    // Gabungkan jika ada nilai utama dan tambahan
+                    return `${drName} (${drExtra})`;
                 }
-                listElement.innerHTML = htmlList;
-
-            } catch (error) {
-                console.error("Gagal memuat changelog: ", error);
-                listElement.innerHTML = '<li>Gagal memuat riwayat perubahan data. Cek konsol.</li>';
+                // Kembalikan nilai utama saja
+                return drName;
+            } else if (drExtra) {
+                // Jika tidak ada nilai utama (dropdown belum dipilih), hanya kembalikan nilai tambahan
+                return drExtra;
             }
+            // Jika keduanya kosong
+            return '';
         }
-        // --- END: FUNGSI BARU UNTUK CHANGELOG DATA ---
+        
+        // --- FUNGSI BARU: VALIDASI APAKAH DOKTER SUDAH DIISI ---
+        function isDoctorFilled(shift) {
+            const drElement = document.getElementById(`dr${shift}`);
+            const drExtraElement = document.getElementById(`drExtra${shift}`);
+            
+            const drName = drElement ? drElement.value.trim() : '';
+            const drExtra = drExtraElement ? drExtraElement.value.trim() : '';
 
-
-        // FUNGSI LOKAL: Kalkulasi Otomatis Total
-        function updateTotals() {
-            const bpjsRj = parseInt(document.getElementById('bpjsRj').value) || 0;
-            const bpjsRi = parseInt(document.getElementById('bpjsRi').value) || 0;
-            const swastaRj = parseInt(document.getElementById('swastaRj').value) || 0;
-            const swastaRi = parseInt(document.getElementById('swastaRi').value) || 0;
-
-            const totalPasien = bpjsRj + bpjsRi + swastaRj + swastaRi;
-            const totalRi = bpjsRi + swastaRi; 
-
-            document.getElementById('totalPasien').value = totalPasien;
-            document.getElementById('totalRi').value = totalRi;
+            // Dianggap diisi jika salah satu (select atau input teks pengganti) tidak kosong
+            return drName !== '' || drExtra !== '';
         }
+        // --------------------------------------------------------
 
-        // FUNGSI FIREBASE BARU: AMBIL SEMUA DATA (untuk Laporan)
-        async function ambilSemuaDataLaporan() {
-            try {
-                // Ambil semua dokumen, diurutkan berdasarkan field 'tanggal'
-                const snapshot = await db.collection(COLLECTION_NAME).orderBy('tanggal').get();
-                const semuaData = [];
-                snapshot.forEach(doc => {
-                    semuaData.push(doc.data());
+        // Fungsi untuk memastikan teks rincian STATUS AKHIR memiliki format yang tepat (dengan newline di depan jika ada teks)
+        function formatRincianStatusAkhir(text) {
+            // Jika ada teks, tambahkan baris kosong di awal (\n) untuk memisahkan dari label
+            return text ? `\n${text}` : '';
+        }
+        
+        // --- FUNGSI BARU: MENAMPILKAN TOAST NOTIFICATION ---
+        /**
+         * Menampilkan notifikasi singkat (toast) di elemen #copyMessage.
+         * @param {string} message - Pesan yang akan ditampilkan.
+         * @param {string} [colorClass='text-green-700'] - Kelas Tailwind CSS untuk warna teks (misalnya, 'text-red-700', 'text-blue-700').
+         */
+        function showNotification(message, colorClass = 'text-green-700') {
+            const copyMessage = document.getElementById('copyMessage');
+            copyMessage.textContent = message;
+            
+            // Hapus semua kelas warna yang mungkin ada
+            copyMessage.classList.remove('hidden', 'text-green-700', 'text-blue-700', 'text-red-700', 'bg-red-100'); 
+            copyMessage.classList.add(colorClass);
+            
+            // Tampilkan notifikasi
+            copyMessage.classList.remove('hidden');
+            
+            // Sembunyikan setelah 3 detik
+            setTimeout(() => {
+                copyMessage.classList.add('hidden');
+            }, 3000);
+        }
+        // -----------------------------------------------------
+
+        document.getElementById('copyBtn').addEventListener('click', copyReport);
+        
+        // Event Listener untuk Tombol Reset (dengan Konfirmasi)
+        document.getElementById('resetBtn').addEventListener('click', function() {
+            // Tampilkan dialog konfirmasi (tetap menggunakan konfirmasi standar untuk high-risk action)
+            const isConfirmed = window.confirm("Yakin ingin menghapus semua data input? Tindakan ini tidak dapat dibatalkan.");
+
+            // Jika pengguna menekan OK (true), baru jalankan fungsi reset
+            if (isConfirmed) {
+                resetAllInputs();
+            }
+        }); 
+        
+        // --- FUNGSI: MENYIMPAN DATA KE LOCAL STORAGE ---
+        function saveData() {
+            const dataToSave = {};
+
+            // 1. Ambil Data Umum
+            dataToSave['inputCity'] = getStr('inputCity'); // Nilai ini akan selalu 'Mojokerto'
+            dataToSave['inputDate'] = getStr('inputDate');
+            // 'inputTime' telah dihapus, tidak perlu disimpan
+            
+            // 2. Ambil Data Semua Shift
+            const shifts = ['Pagi1', 'Pagi2', 'Siang', 'Malam'];
+            const inputFields = [
+                // dr kini jadi Select, drExtra adalah text baru
+                'dr', 'drExtra', 'bpjsKet', 'umumKet', 'doaKet', 'meninggalKet', 'mcuKet', 
+                'pkmRujukKet', 'rsLainKet', // <-- UPDATE: pkmRujukKet & rsLainKet menggantikan rujukKet
+                // Rujukan PKM BARU DITAMBAHKAN
+                'pkmRI', 'pkmRJ', 
+                'rujukRI', 'rujukRJ', 'labRI', 'labRJ', 'desaRI', 'desaRJ', 
+                'sendiriRI', 'sendiriRJ', 'bpjs', 'umum'
+            ];
+
+            shifts.forEach(shift => {
+                inputFields.forEach(field => {
+                    const id = `${field}${shift}`;
+                    const element = document.getElementById(id);
+                    if (element) {
+                        dataToSave[id] = element.value;
+                    }
                 });
-                return semuaData;
-            } catch (error) {
-                console.error("Gagal mengambil semua data dari Firebase: ", error);
-                alert("Gagal memuat data laporan dari cloud. Lihat konsol untuk detail.");
-                return []; 
-            }
+            });
+
+            // Simpan objek data ke localStorage sebagai string JSON
+            localStorage.setItem('igdReportData', JSON.stringify(dataToSave));
         }
-        
-        // FUNGSI FIREBASE: MUAT DATA PER TANGGAL (READ)
-        async function muatDataTanggal() {
-            const tanggalInput = document.getElementById('tanggal').value;
-            
-            if (!tanggalInput) {
-                resetInputFields(false);
-                updateTotals();
-                return;
+
+        // --- FUNGSI: MEMUAT DATA DARI LOCAL STORAGE ---
+        function loadData() {
+            const savedData = localStorage.getItem('igdReportData');
+            if (!savedData) {
+                return; // Tidak ada data tersimpan, keluar dari fungsi
             }
 
             try {
-                const docRef = db.collection(COLLECTION_NAME).doc(tanggalInput);
-                const doc = await docRef.get();
-
-                if (doc.exists) {
-                    const dataDitemukan = doc.data();
-                    INPUT_IDS.forEach(id => {
-                        const inputElement = document.getElementById(id);
-                        if (inputElement) {
-                            // Memuat angka atau teks/textarea (keterangan)
-                            inputElement.value = dataDitemukan[id] !== undefined ? dataDitemukan[id] : 
-                                (inputElement.tagName === 'INPUT' && inputElement.type === 'number' ? 0 : '');
-                        }
-                    });
-                    console.log(`Data untuk tanggal ${tanggalInput} berhasil dimuat dari Firestore.`);
-                } else {
-                    resetInputFields(false); 
-                    console.log(`Tidak ada data tersimpan untuk tanggal ${tanggalInput} di Firestore.`);
+                const data = JSON.parse(savedData);
+                
+                // Isi nilai-nilai input dari data yang dimuat
+                for (const id in data) {
+                    const element = document.getElementById(id);
+                    // Pengecualian inputCity: biarkan nilai HTML yang paten ('Mojokerto') yang berlaku, 
+                    // dan input-nya readonly
+                    if (element && id !== 'inputCity') { 
+                        element.value = data[id];
+                    }
                 }
-            } catch (error) {
-                 console.error("Gagal memuat data dari Firebase: ", error);
-                 alert("Gagal memuat data. Lihat konsol untuk detailnya.");
+                
+                // --- PENGGUNAAN FUNGSI BARU showNotification ---
+                showNotification('Data sesi sebelumnya berhasil dimuat!', 'text-blue-700');
+
+
+            } catch (e) {
+                console.error("Gagal memuat data dari Local Storage:", e);
+                // Hapus data yang rusak
+                localStorage.removeItem('igdReportData'); 
+                // Tampilkan notifikasi gagal
+                showNotification('Gagal memuat data sesi sebelumnya (Data rusak).', 'text-red-700');
             }
-            // PENTING: Panggil updateTotals setelah memuat atau mereset data
-            updateTotals();
         }
+        
+        
+        // Fungsi utama untuk mengambil data dan menghasilkan laporan
+        function generateReport() {
+            // --- 1. Ambil Data Dasar ---
+            const city = getStr('inputCity');
+            const dateStr = getStr('inputDate');
+            // Ganti pengambilan data dari input dengan nilai yang dipatenkan
+            const timeStr = "00.00"; 
 
-        // FUNGSI FIREBASE: HAPUS DATA PER TANGGAL (DELETE)
-        async function hapusDataPerTanggal() {
-            const tanggalInput = document.getElementById('tanggal').value;
-            
-            if (!tanggalInput) {
-                alert("Pilih tanggal terlebih dahulu untuk menghapus datanya!");
-                return;
-            }
+            // Array of shift names
+            const shifts = ['Pagi1', 'Pagi2', 'Siang', 'Malam'];
+            const shiftData = {};
+            const missingDoctors = []; // Array untuk menampung shift yang kekurangan dokter
 
-            if (confirm(`Anda yakin ingin menghapus data untuk tanggal ${tanggalInput} dari Cloud Firestore? Aksi ini tidak bisa dibatalkan!`)) {
-                try {
-                    const docRef = db.collection(COLLECTION_NAME).doc(tanggalInput);
-                    await docRef.delete();
+            let totalKunjungan = 0;
+            let totalMRS = 0;
+            // --- VARIABEL UNTUK PEMISAHAN SHIFT ---
+            let totalDiniHariPx = 0;
+            let totalDiniHariMRS = 0;
+            let totalPagiPx = 0;
+            let totalPagiMRS = 0;
+            let totalSiangPx = 0;
+            let totalSiangMRS = 0;
+            let totalMalamPx = 0;
+            let totalMalamMRS = 0;
+            // ------------------------------------------
+
+            shifts.forEach(shift => {
+                // **LOGIKA VALIDASI DOKTER**
+                if (!isDoctorFilled(shift)) {
+                    // Ambil Judul Shift dari Header
+                    const headerText = document.getElementById(`header${shift}`).textContent.trim();
+                    // Gunakan regex untuk membersihkan emoji dan spasi berlebihan
+                    const cleanShiftName = headerText.replace(/[\uD800-\uDBFF\uDC00-\uDFFF\s]+/g, ' ').trim(); 
+                    missingDoctors.push(cleanShiftName);
+                }
+
+                // Mode of Arrival (FIX KRITIS: Perbaiki inkonsistensi penamaan ID)
+                // Contoh: pkmRJPagi1, pkmRJPagi2, pkmRJSiang, pkmRJMalam
+                const pkmRI = getNum(`pkmRI${shift}`);
+                const pkmRJ = getNum(`pkmRJ${shift}`); 
+                
+                const rujukRI = getNum(`rujukRI${shift}`);
+                const rujukRJ = getNum(`rujukRJ${shift}`);
+                const labRI = getNum(`labRI${shift}`);
+                const labRJ = getNum(`labRJ${shift}`);
+                const desaRI = getNum(`desaRI${shift}`);
+                const desaRJ = getNum(`desaRJ${shift}`);
+                const sendiriRI = getNum(`sendiriRI${shift}`);
+                const sendiriRJ = getNum(`sendiriRJ${shift}`);
+                
+                // Keterangan Teks (Raw)
+                const bpjsKetRaw = getStr(`bpjsKet${shift}`);
+                const umumKetRaw = getStr(`umumKet${shift}`);
+                const doaKetRaw = getStr(`doaKet${shift}`);
+                const meninggalKetRaw = getStr(`meninggalKet${shift}`);
+                const mcuKetRaw = getStr(`mcuKet${shift}`);
+                
+                // BARU: Pisahkan Rujukan
+                const pkmRujukKetRaw = getStr(`pkmRujukKet${shift}`);
+                const rsLainKetRaw = getStr(`rsLainKet${shift}`);
+
+
+                // Calculated Totals
+                // FIX KRITIS: Pastikan semua hasil getNum() dijumlahkan. Karena getNum sudah di-fix, ini aman.
+                const shiftMRS = pkmRI + rujukRI + labRI + desaRI + sendiriRI;
+                const shiftRJ = pkmRJ + rujukRJ + labRJ + desaRJ + sendiriRJ;
+                const shiftJml = shiftMRS + shiftRJ;
+                
+                // Update display fields (FITUR OTOMATIS: JUMLAH PASIEN DAN MRS)
+                const displayJmlElement = document.getElementById(`displayJml${shift}`);
+                if (displayJmlElement) {
+                    displayJmlElement.value = shiftJml;
+                }
+                // Update display Rawat Inap (MRS)
+                const displayMrsElement = document.getElementById(`displayMrs${shift}`);
+                if (displayMrsElement) {
+                    displayMrsElement.value = shiftMRS;
+                }
+                // -----------------------------------------------------------
+
+                // Collect all data for the shift.
+                shiftData[shift] = {
+                    dr: getDoctorName(shift), // Menggunakan fungsi baru untuk menggabungkan nama dokter
+                    jml: shiftJml,
+                    mrs: shiftMRS,
+                    rj: shiftRJ,
+                    bpjs: getNum(`bpjs${shift}`),
+                    umum: getNum(`umum${shift}`),
                     
-                    alert(`Data untuk tanggal ${tanggalInput} berhasil dihapus dari Cloud Firestore.`);
-                    resetInputFields(false); 
-                    await inisialisasiBulanFilter(); // Memuat ulang filter dan laporan
-                    await tampilkanLaporan(); 
-                    await muatChangelog(); // REFRESH CHANGELOG
-                } catch (error) {
-                    console.error("Gagal menghapus data dari Firebase: ", error);
-                    alert("Gagal menghapus data. Pastikan Anda memiliki koneksi dan izin. Lihat konsol untuk detail.");
+                    // Keterangan BPJS/UMUM (Raw text)
+                    bpjsKet: bpjsKetRaw, 
+                    umumKet: umumKetRaw, 
+                    
+                    // Status Akhir - Simpan teks yang sudah diformat (\n di awal jika ada isi)
+                    doaKet: formatRincianStatusAkhir(doaKetRaw),
+                    meninggalKet: formatRincianStatusAkhir(meninggalKetRaw),
+                    mcuKet: formatRincianStatusAkhir(mcuKetRaw),
+                    pkmRujukKet: formatRincianStatusAkhir(pkmRujukKetRaw),
+                    rsLainKet: formatRincianStatusAkhir(rsLainKetRaw),
+
+                    // Simpan Raw Text untuk check kondisi di generateShiftReport
+                    bpjsKetRaw: bpjsKetRaw,
+                    umumKetRaw: umumKetRaw,
+                    doaKetRaw: doaKetRaw,
+                    meninggalKetRaw: meninggalKetRaw,
+                    mcuKetRaw: mcuKetRaw,
+                    pkmRujukKetRaw: pkmRujukKetRaw,
+                    rsLainKetRaw: rsLainKetRaw,
+                    
+                    // Detailed Arrival Data
+                    pkmRI: pkmRI, pkmRJ: pkmRJ,
+                    rujukRI: rujukRI, rujukRJ: rujukRJ,
+                    labRI: labRI, labRJ: labRJ,
+                    desaRI: desaRI, desaRJ: desaRJ,
+                    sendiriRI: sendiriRI, sendiriRJ: sendiriRJ
+                };
+
+                // Accumulate Global Totals
+                totalKunjungan += shiftJml;
+                totalMRS += shiftMRS;
+
+                // --- LOGIKA AKUMULASI DENGAN PEMISAHAN SHIFT BARU ---
+                if (shift === 'Pagi1') {
+                    totalDiniHariPx = shiftJml; // FIX: Ganti += menjadi = agar tidak terakumulasi
+                    totalDiniHariMRS = shiftMRS; // FIX: Ganti += menjadi = agar tidak terakumulasi
+                } else if (shift === 'Pagi2') {
+                    totalPagiPx = shiftJml;
+                    totalPagiMRS = shiftMRS;
+                } else if (shift === 'Siang') {
+                    totalSiangPx = shiftJml;
+                    totalSiangMRS = shiftMRS;
+                } else if (shift === 'Malam') {
+                    totalMalamPx = shiftJml;
+                    totalMalamMRS = shiftMRS;
                 }
-            }
-        }
-
-        function resetInputFields(konfirmasiUser = true) {
-            let lanjutkan = true;
-            if (konfirmasiUser) {
-                 lanjutkan = confirm("Anda yakin ingin MERESET semua kolom input data menjadi nilai 0/kosong?");
-            }
-            
-            if (lanjutkan) {
-                const numberInputs = document.querySelectorAll('input[type="number"]');
-                const textInputs = document.querySelectorAll('textarea');
-                
-                numberInputs.forEach(input => {
-                    // Hanya reset input yang BUKAN readonly
-                    if (!input.hasAttribute('readonly')) {
-                         input.value = 0;
-                    }
-                });
-                
-                textInputs.forEach(input => {
-                    input.value = '';
-                });
-
-                // PENTING: Panggil updateTotals setelah reset
-                updateTotals(); 
-                
-                if (konfirmasiUser) {
-                    alert("Semua kolom input data telah direset menjadi 0/kosong.");
-                }
-            }
-        }
-
-        // FUNGSI FIREBASE: HAPUS SEMUA DATA (DELETE BATCH - sederhana)
-        async function hapusSemuaData() {
-            if (!confirm("PERINGATAN! ANDA YAKIN INGIN MENGHAPUS SEMUA DATA LAPORAN SECARA PERMANEN DARI CLOUD? Aksi ini tidak bisa dibatalkan!")) {
-                return;
-            }
-            
-            try {
-                const batch = db.batch();
-                const snapshot = await db.collection(COLLECTION_NAME).get();
-                let count = 0;
-
-                snapshot.forEach((doc) => {
-                    batch.delete(doc.ref);
-                    count++;
-                });
-
-                await batch.commit();
-                alert(`Semua ${count} data laporan telah berhasil dihapus dari Cloud Firestore.`);
-                
-                resetInputFields(false); 
-                await inisialisasiBulanFilter(); 
-                await tampilkanLaporan();  
-                await muatChangelog(); // REFRESH CHANGELOG    
-            } catch (error) {
-                console.error("Gagal menghapus semua data dari Firebase: ", error);
-                alert("Gagal menghapus semua data. Lihat konsol untuk detail.");
-            }
-        }
-
-        // FUNGSI FIREBASE: SIMPAN/PERBARUI DATA (CREATE/UPDATE)
-        async function tambahData() {
-            const tanggalInput = document.getElementById('tanggal').value;
-
-            if (!tanggalInput) {
-                alert("Tanggal wajib diisi!");
-                return;
-            }
-
-            updateTotals(); // Pastikan nilai total Pasien dan RI sudah yang terbaru
-
-            // --- START: VALIDASI KONSISTENSI DATA --- (Sama seperti sebelumnya)
-            const bpjsRj = parseInt(document.getElementById('bpjsRj').value) || 0;
-            const bpjsRi = parseInt(document.getElementById('bpjsRi').value) || 0;
-            const swastaRj = parseInt(document.getElementById('swastaRj').value) || 0;
-            const swastaRi = parseInt(document.getElementById('swastaRi').value) || 0;
-
-            const totalRjAsuransi = bpjsRj + swastaRj;
-            const totalRiAsuransi = bpjsRi + swastaRi;
-
-            const totalRjSpesialisasi = 
-                (parseInt(document.getElementById('pdRj').value) || 0) +
-                (parseInt(document.getElementById('bedahRj').value) || 0) +
-                (parseInt(document.getElementById('anakRj').value) || 0) +
-                (parseInt(document.getElementById('syarafRj').value) || 0) +
-                (parseInt(document.getElementById('obgynRj').value) || 0) +
-                (parseInt(document.getElementById('orthopediRj').value) || 0) +
-                (parseInt(document.getElementById('mataRj').value) || 0);
-
-            const totalRiSpesialisasi = 
-                (parseInt(document.getElementById('pdRi').value) || 0) +
-                (parseInt(document.getElementById('bedahRi').value) || 0) +
-                (parseInt(document.getElementById('anakRi').value) || 0) +
-                (parseInt(document.getElementById('syarafRi').value) || 0) +
-                (parseInt(document.getElementById('obgynRi').value) || 0) +
-                (parseInt(document.getElementById('orthopediRi').value) || 0) +
-                (parseInt(document.getElementById('mataRi').value) || 0);
-
-            let errorMessages = [];
-
-            if (totalRjAsuransi !== totalRjSpesialisasi) {
-                errorMessages.push(`❌ Total Pasien Rawat Jalan (Asuransi: ${totalRjAsuransi}) TIDAK SAMA dengan Total Pasien Rawat Jalan (Spesialisasi: ${totalRjSpesialisasi}).`);
-            }
-
-            if (totalRiAsuransi !== totalRiSpesialisasi) {
-                errorMessages.push(`❌ Total Pasien Rawat Inap (Asuransi: ${totalRiAsuransi}) TIDAK SAMA dengan Total Pasien Rawat Inap (Spesialisasi: ${totalRiSpesialisasi}).`);
-            }
-
-            if (errorMessages.length > 0) {
-                const konfirmasiLanjut = confirm("⚠️ Data Pasien Tidak Konsisten! \n\n" + errorMessages.join('\n') + "\n\nApakah Anda yakin ingin tetap menyimpan data ini?");
-                if (!konfirmasiLanjut) {
-                    alert("Penyimpanan data dibatalkan. Mohon periksa kembali kolom Asuransi dan Spesialisasi.");
-                    return;
-                }
-            }
-            // --- END: VALIDASI KONSISTENSI DATA ---
-
-            // Mengambil nilai dari semua input (angka dan textarea)
-            const dataBaru = { 
-                tanggal: tanggalInput,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp() // Tambahkan timestamp
-            };
-            INPUT_IDS.forEach(id => {
-                 const inputElement = document.getElementById(id);
-                 if (inputElement.tagName === 'INPUT' && inputElement.type === 'number') {
-                    dataBaru[id] = parseInt(inputElement.value) || 0;
-                 } else if (inputElement.tagName === 'TEXTAREA') {
-                    dataBaru[id] = inputElement.value.trim(); 
-                 }
+                // ----------------------------------------------------
             });
             
+            // **LOGIKA MENAMPILKAN PERINGATAN DAN MENGATUR TOMBOL SALIN**
+            const doctorWarningMessage = document.getElementById('doctorWarningMessage');
+            const missingDoctorsList = document.getElementById('missingDoctorsList');
+            const copyBtn = document.getElementById('copyBtn');
+
+            if (missingDoctors.length > 0) {
+                // Tampilkan pesan peringatan
+                missingDoctorsList.textContent = missingDoctors.join(', ');
+                doctorWarningMessage.classList.remove('hidden');
+                // Nonaktifkan tombol salin
+                copyBtn.disabled = true; 
+            } else {
+                // Sembunyikan pesan dan aktifkan tombol salin (jika ada data)
+                doctorWarningMessage.classList.add('hidden');
+                // Aktifkan tombol salin hanya jika ada data yang diisi
+                copyBtn.disabled = (totalKunjungan === 0 && !city && !dateStr);
+            }
+            // **AKHIR LOGIKA PERINGATAN**
+
+
+            // --- 7. Proses Penyusunan Laporan ---
+            let report = '';
+            
+            // Header Laporan
+            report += "LAPORAN JAGA IGD\n\n";
+            report += `${city || 'Kota'}${city ? ', ' : ''}Hari ${dateStr || 'Tanggal'} Jam ${timeStr || '' }\n\n`;
+            
+            // Total Kunjungan (Menggunakan variabel yang telah dipisahkan)
+            report += `TOTAL KUNJUNGAN IGD ${totalKunjungan} PASIEN\n`;
+            report += `DINI HARI : ${totalDiniHariPx} px, MRS: ${totalDiniHariMRS}\n`;
+            report += `PAGI      : ${totalPagiPx} px, MRS: ${totalPagiMRS}\n`;
+            report += `SIANG     : ${totalSiangPx} px, MRS: ${totalSiangMRS}\n`;
+            report += `MALAM     : ${totalMalamPx} px, MRS: ${totalMalamMRS}\n\n`;
+            // ------------------------------------------------------------------
+
+            // Helper function to generate a shift block in the report
+            function generateShiftReport(shiftKey, shiftTitle, timeRange) {
+                const data = shiftData[shiftKey];
+                
+                // Jika shiftJml-nya 0 dan dokter tidak diisi, abaikan blok ini
+                if (data.jml === 0 && data.dr === '') {
+                    // Namun, kita harus memastikan bahwa ini tidak memotong baris laporan lain. 
+                    // Karena struktur laporan adalah: TOTAL -> Pagi1 -> Pagi2 -> Siang -> Malam,
+                    // Kita biarkan saja blok ini tercetak, tapi dengan nilai '-'
+                }
+
+                let block = `${shiftTitle}\n`;
+                block += `Jam ${timeRange}\n`;
+                block += `Dokter : ${data.dr || '-'}\n`; 
+                block += `Jumlah pasien : ${data.jml > 0 ? data.jml : '-'}\n`;
+                block += `MRS : ${data.mrs > 0 ? data.mrs : '-'}\n\n`;
+                
+                // 1. KETERANGAN SUMMARY (BPJS/UMUM/RJ Count)
+                block += "Keterangan :\n";
+                block += `BPJS : ${data.bpjs > 0 ? data.bpjs : '-'}\n`;
+                block += `Umum : ${data.umum > 0 ? data.umum : '-'}\n`;
+                block += `Rawat jalan : ${data.rj > 0 ? data.rj : '-'}\n\n`;
+
+                // 2. RINCIAN KEDATANGAN
+                block += "Rincian jumlah pasien yang datang:\n";
+                block += `-Rujukan PKM:\n`;
+                block += `\u2022 Rawat inap : ${data.pkmRI > 0 ? data.pkmRI : '-'}\n`;
+                block += `\u2022 Rawat jalan : ${data.pkmRJ > 0 ? data.pkmRJ : '-'}\n`;
+                
+                block += `-Bawa surat rujukan :\n`;
+                block += `\u2022 Rawat inap : ${data.rujukRI > 0 ? data.rujukRI : '-'}\n`;
+                block += `\u2022 Rawat jalan : ${data.rujukRJ > 0 ? data.rujukRJ : '-'}\n`;
+                block += `-Bawa hasil lab : \n`;
+                block += `\u2022 Rawat inap : ${data.labRI > 0 ? data.labRI : '-'}\n`;
+                block += `\u2022 Rawat jalan : ${data.labRJ > 0 ? data.labRJ : '-'}\n`;
+                block += `-Diantar siaga desa : \n`;
+                block += `\u2022 Rawat inap : ${data.desaRI > 0 ? data.desaRI : '-'}\n`;
+                block += `\u2022 Rawat jalan : ${data.desaRJ > 0 ? data.desaRJ : '-'}\n`;
+                block += `-Datang sendiri : \n`;
+                block += `\u2022 Rawat inap : ${data.sendiriRI > 0 ? data.sendiriRI : '-'}\n`;
+                block += `\u2022 Rawat jalan : ${data.sendiriRJ > 0 ? data.sendiriRJ : '-'}\n\n`;
+
+
+                // 3. RINCIAN KASUS (DETAIL PER PASIEN)
+                block += "RINCIAN KASUS PASIEN RAWAT JALAN\n";
+
+                // BPJS Kasus: Tampilkan 'Tidak ada' jika bpjsKet kosong
+                const bpjsContent = data.bpjsKet || '- Tidak ada';
+                block += `BPJS:\n${bpjsContent}\n\n`;
+
+                // UMUM Kasus: Tampilkan 'Tidak ada' jika umumKet kosong
+                const umumContent = data.umumKet || '- Tidak ada';
+                block += `UMUM:\n${umumContent}\n\n`;
+                
+                // 4. RINCIAN STATUS AKHIR
+                block += "RINCIAN STATUS AKHIR\n";
+                block += `DOA :${data.doaKet || '-'}\n`;
+                block += `Meninggal :${data.meninggalKet || '-'}\n`;
+                block += `MCU :${data.mcuKet || '-'}\n`;
+                block += `Rujukan dari Puskesmas :${data.pkmRujukKet || '-'}\n`; 
+                block += `Rujuk ke Rumah Sakit Lain :${data.rsLainKet || '-'}\n`;
+                block += `Covid Rawat Jalan: -\n\n`; 
+
+                return block;
+            }
+
+            // --- APPEND SHIFT REPORTS ---
+            report += generateShiftReport('Pagi1', 'Shift Dini Hari', '00.00 - 07.00 Wib');
+            report += generateShiftReport('Pagi2', 'Shift Pagi', '07.00 - 14.00 Wib');
+            report += generateShiftReport('Siang', 'Shift Siang', '14.00 - 21.00 Wib');
+            report += generateShiftReport('Malam', 'Shift Malam', '21.00 - 00.00 Wib');
+
+
+            // Tampilkan laporan di Textarea
+            document.getElementById('outputReport').value = report;
+            
+            // Pastikan pesan copy disembunyikan
+            document.getElementById('copyMessage').classList.add('hidden');
+        }
+
+        // Fungsi untuk menyalin teks ke clipboard
+        function copyReport() {
+            const reportTextarea = document.getElementById('outputReport');
+            
+            reportTextarea.select();
+            reportTextarea.setSelectionRange(0, 99999);
+
             try {
-                 const docRef = db.collection(COLLECTION_NAME).doc(tanggalInput);
-                 const doc = await docRef.get();
-
-                 let konfirmasiPesan;
-                 if (doc.exists) {
-                     konfirmasiPesan = `Anda yakin ingin MEMPERBARUI data untuk tanggal ${tanggalInput} di Cloud Firestore?`;
-                 } else {
-                     konfirmasiPesan = `Anda yakin ingin MENYIMPAN data baru untuk tanggal ${tanggalInput} di Cloud Firestore?`;
-                 }
-
-                 if (confirm(konfirmasiPesan)) {
-                     // Menggunakan set() dengan ID dokumen = tanggalInput (Otomatis Create/Update)
-                     await docRef.set(dataBaru);
-                     alert(`Data untuk tanggal ${tanggalInput} berhasil disimpan/diperbarui di Cloud Firestore!`);
-
-                     await inisialisasiBulanFilter(); 
-                     await tampilkanLaporan(); 
-                     await muatChangelog(); // REFRESH CHANGELOG
-                 } else {
-                      alert("Penyimpanan/Pembaruan data dibatalkan.");
-                 }
-            } catch (error) {
-                console.error("Gagal menyimpan data ke Firebase: ", error);
-                alert("Gagal menyimpan data. Pastikan Anda memiliki koneksi dan izin. Lihat konsol untuk detail.");
+                // Menggunakan document.execCommand('copy') untuk kompatibilitas iframe
+                document.execCommand('copy'); 
+                showNotification('Berhasil disalin!', 'text-green-700');
+            } catch (err) {
+                console.error('Gagal menyalin:', err);
+                showNotification('Gagal menyalin. Silakan salin manual.', 'text-red-700');
             }
         }
         
-        let monthlyChart = null; 
+        /**
+         * FUNGSI COLLAPSIBLE AKORDEON (Hanya satu yang terbuka pada satu waktu)
+         * Menambahkan fitur scroll-to-view.
+         */
+        function setupCollapsibleShift(shiftName) {
+            const header = document.getElementById(`header${shiftName}`);
+            const content = document.getElementById(`content${shiftName}`);
 
-        function buatChartLaporan(dataBulanIni) {
-            const ctx = document.getElementById('monthly-chart').getContext('2d');
-            
-            if (monthlyChart) {
-                monthlyChart.destroy();
-            }
+            if (header && content) {
+                header.addEventListener('click', () => {
+                    // 1. Cek apakah konten saat ini sudah terbuka
+                    const isCurrentlyOpen = !content.classList.contains('hidden');
 
-            const dates = dataBulanIni.map(item => item.tanggal.split('-').reverse().join('/'));
-            const totalPasienHarian = dataBulanIni.map(item => item.totalPasien);
-
-            monthlyChart = new Chart(ctx, {
-                type: 'line', 
-                data: {
-                    labels: dates,
-                    datasets: [{
-                        label: 'Total Pasien Harian',
-                        data: totalPasienHarian,
-                        backgroundColor: 'rgba(66, 165, 245, 0.5)',
-                        borderColor: 'rgb(66, 165, 245)',
-                        borderWidth: 2,
-                        tension: 0.3,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top',
-                        },
-                        title: {
-                            display: true,
-                            text: '📈 Tren Total Pasien Harian Bulan Ini',
-                            font: { size: 16 }
+                    // 2. Tutup SEMUA collapsible lainnya
+                    allContentIds.forEach(id => {
+                        const otherContent = document.getElementById(id);
+                        if (otherContent) {
+                            otherContent.classList.add('hidden');
                         }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Jumlah Pasien'
-                            }
-                        }
+                    });
+                    
+                    // 3. Hanya buka konten yang diklik JIKA sebelumnya TERTUTUP.
+                    if (!isCurrentlyOpen) {
+                        content.classList.remove('hidden');
+                        
+                        // --- FITUR BARU: SCROLL KE HEADER ---
+                        header.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        // ------------------------------------
                     }
-                }
-            });
-        }
-
-
-        // FUNGSI FIREBASE: INISIALISASI FILTER BULAN
-        async function inisialisasiBulanFilter() {
-            const data = await ambilSemuaDataLaporan();
-            const filter = document.getElementById('bulan-filter');
-            filter.innerHTML = ''; 
-
-            const bulanTersedia = new Set();
-            data.forEach(item => {
-                const [tahun, bulan] = item.tanggal.split('-');
-                bulanTersedia.add(`${tahun}-${bulan}`);
-            });
-
-            const bulanArray = Array.from(bulanTersedia).sort().reverse();
-            
-            const defaultOption = document.createElement('option');
-            defaultOption.value = '';
-            defaultOption.textContent = '-- Pilih Bulan --';
-            filter.appendChild(defaultOption);
-
-            bulanArray.forEach(bulanTahun => {
-                const option = document.createElement('option');
-                option.value = bulanTahun;
-                const [tahun, bulan] = bulanTahun.split('-');
-                const namaBulan = new Date(tahun, bulan - 1).toLocaleString('id-ID', { month: 'long' });
-                option.textContent = `${namaBulan} ${tahun}`;
-                filter.appendChild(option);
-            });
-
-            // Set filter ke bulan terbaru
-            if (bulanArray.length > 0) {
-                filter.value = bulanArray[0];
+                    // Jika sebelumnya TERBUKA, langkah 2 sudah menutupnya, sehingga mengklik yang sudah terbuka akan menutupnya.
+                });
             }
         }
 
-        // FUNGSI FIREBASE: TAMPILKAN LAPORAN (READ)
-        async function tampilkanLaporan() {
-            const bulanFilter = document.getElementById('bulan-filter').value;
-            const tabelContainer = document.getElementById('laporan-tabel');
-            const totalDiv = document.getElementById('total-nilai');
-            
-            // Ambil semua data dari Cloud
-            const semuaData = await ambilSemuaDataLaporan();
-            tabelContainer.innerHTML = '';
-            totalDiv.textContent = '';
-            
-            if (!bulanFilter) {
-                totalDiv.textContent = 'Silahkan pilih bulan untuk menampilkan laporan.';
-                if (monthlyChart) monthlyChart.destroy();
-                return;
-            }
+        /**
+         * FUNGSI COLLAPSIBLE UNTUK CHANGELOG
+         */
+        function setupChangelogToggle() {
+            const header = document.getElementById('changelogHeader');
+            const content = document.getElementById('changelogContent');
+            const icon = document.getElementById('changelogIcon'); // SVG Panah
 
-            const dataBulanIni = semuaData.filter(item => item.tanggal.startsWith(bulanFilter));
+            if (header && content && icon) {
+                // Pastikan status default (tertutup) diterapkan saat pertama kali setup
+                content.classList.add('hidden');
+                icon.classList.remove('rotate-180'); // Pastikan panah menghadap ke bawah
 
-            if (dataBulanIni.length === 0) {
-                tabelContainer.innerHTML = '<thead><tr><th>Kategori</th></tr></thead><tbody><tr><td colspan="31" style="text-align:center;">Tidak ada data untuk bulan yang dipilih.</td></tr></tbody>';
-                if (monthlyChart) monthlyChart.destroy();
-                return;
-            }
-
-            // Data Keys & Headers (Filter keluar 'Tanggal')
-            const reportDataKeys = dataKeysReport.slice(1);
-            const reportKolomHeader = kolomHeader.slice(1);
-            
-            // 1. Ambil list tanggal untuk kolom (untuk tampilan HTML, tetap format DD/MM/YYYY)
-            const dates = dataBulanIni.map(item => item.tanggal.split('-').reverse().join('/')); 
-
-            // 2. Buat Header Tabel (Tanggal)
-            const headerRow = tabelContainer.createTHead().insertRow();
-            
-            let th = document.createElement('th');
-            th.textContent = 'Kategori';
-            th.style.minWidth = '150px'; 
-            headerRow.appendChild(th);
-
-            dates.forEach(date => {
-                th = document.createElement('th');
-                th.textContent = date;
-                headerRow.appendChild(th);
-            });
-
-            th = document.createElement('th');
-            th.textContent = 'TOTAL BULAN';
-            th.style.backgroundColor = '#1a237e'; 
-            headerRow.appendChild(th);
-
-            // 3. Buat Body Tabel (Metrik sebagai Baris)
-            const tabelBody = tabelContainer.createTBody();
-            
-            let totalPasienBulanIni = 0;
-
-            reportKolomHeader.forEach((displayHeader, index) => {
-                const dataKey = reportDataKeys[index]; 
-                const row = tabelBody.insertRow();
-                
-                const rowClass = rowClassMap[displayHeader] || 'row-umum';
-                row.classList.add(rowClass);
-
-                // Cell 1: Nama Metrik
-                let cell = row.insertCell();
-                cell.textContent = displayHeader;
-                cell.style.fontWeight = 'bold';
-                
-                let totalMetric = 0;
-                
-                // Loop melalui setiap hari/kolom
-                dataBulanIni.forEach(dayData => {
-                    cell = row.insertCell();
-                    const value = dayData[dataKey];
-
-                    if (displayHeader.includes('Ket.')) {
-                        // Data Teks/Keterangan
-                        cell.textContent = value || '-';
-                        cell.classList.add('keterangan-cell');
-                        cell.style.textAlign = 'left';
-                        
+                header.addEventListener('click', () => {
+                    const isHidden = content.classList.contains('hidden');
+                    
+                    if (isHidden) {
+                        // Buka (Show)
+                        content.classList.remove('hidden');
+                        icon.classList.add('rotate-180'); // Panah menghadap ke atas
                     } else {
-                        // Data Numerik
-                        const numValue = parseInt(value) || 0;
-                        cell.textContent = numValue;
-                        cell.style.textAlign = 'right';
-                        totalMetric += numValue;
-                        
-                        if (dataKey === 'totalPasien') {
-                            totalPasienBulanIni += numValue;
-                        }
+                        // Tutup (Hide)
+                        content.classList.add('hidden');
+                        icon.classList.remove('rotate-180'); // Panah menghadap ke bawah
                     }
                 });
+            }
+        }
+
+        /**
+         * FUNGSI: Mereset semua input field ke nilai default/kosong
+         */
+        function resetAllInputs() {
+            // Pilih semua input dan textarea kecuali yang disabled (displayJml dan displayMrs)
+            const allInputs = document.querySelectorAll('input:not([disabled]), textarea, select');
+
+            // 1. Reset semua input text, number, dan textarea
+            allInputs.forEach(input => {
+                // --- FIX: JANGAN RESET inputCity, PASTIKAN NILAINYA ADALAH 'Mojokerto' ---
+                if (input.id === 'inputCity') {
+                    input.value = 'Mojokerto'; // Tetapkan kembali nilai default
+                    return; // Lewati sisa loop untuk elemen ini
+                }
+                // -------------------------------------------------------------------------
                 
-                // Last Cell: Total Bulan
-                cell = row.insertCell();
-                if (displayHeader.includes('Ket.')) {
-                    cell.textContent = '-'; 
-                    cell.style.textAlign = 'center';
-                    cell.classList.add('keterangan-cell');
+                if (input.type === 'number') {
+                    input.value = '0'; // Reset input number ke 0
+                } else if (input.tagName === 'SELECT') {
+                    input.value = ''; // Reset select ke opsi pertama (value="")
                 } else {
-                    cell.textContent = totalMetric.toLocaleString('id-ID');
-                    cell.style.textAlign = 'right';
-                    cell.classList.add('total-row'); 
+                    input.value = ''; // Reset input text dan textarea ke string kosong
                 }
             });
 
-            // 4. Update Grand Total (Div di bawah tabel)
-            totalDiv.textContent = `TOTAL PASIEN BULAN INI: ${totalPasienBulanIni.toLocaleString('id-ID')}`;
-            
-            // 5. Tambahkan Baris TOTAL HARIAN (Grand Total Harian)
-            const totalHarianRow = tabelBody.insertRow();
-            // Gunakan class total-row yang sudah ada, lalu override warna latar
-            totalHarianRow.classList.add('total-row'); 
-            totalHarianRow.style.backgroundColor = '#e8f5e9'; // Light green background (matching XLSX grand total)
-
-            // Cell 1: Label
-            let cellLabel = totalHarianRow.insertCell();
-            cellLabel.textContent = 'TOTAL HARIAN (Semua Pasien)';
-            cellLabel.style.textAlign = 'left';
-            cellLabel.style.fontWeight = 'bold';
-
-            // Loop melalui setiap hari/kolom untuk menampilkan daily total
-            dataBulanIni.forEach(dayData => {
-                let cellTotal = totalHarianRow.insertCell();
-                const dailyTotal = dayData.totalPasien || 0; 
-                cellTotal.textContent = dailyTotal.toLocaleString('id-ID');
-                cellTotal.style.textAlign = 'right';
-                cellTotal.style.fontWeight = 'bold';
-                cellTotal.style.backgroundColor = '#c5cae9'; // Light blue for daily total emphasis
+            // 2. Reset tampilan Jumlah Pasien dan Rawat Inap (yang disabled)
+            const shifts = ['Pagi1', 'Pagi2', 'Siang', 'Malam'];
+            shifts.forEach(shift => {
+                const displayJmlElement = document.getElementById(`displayJml${shift}`);
+                if (displayJmlElement) {
+                    displayJmlElement.value = '0';
+                }
+                const displayMrsElement = document.getElementById(`displayMrs${shift}`);
+                if (displayMrsElement) {
+                    displayMrsElement.value = '0';
+                }
             });
 
-            // Cell Terakhir: Grand Total Bulanan
-            let cellGrandTotal = totalHarianRow.insertCell();
-            cellGrandTotal.textContent = totalPasienBulanIni.toLocaleString('id-ID');
-            cellGrandTotal.style.textAlign = 'right';
-            cellGrandTotal.style.fontWeight = 'bold';
-            cellGrandTotal.style.backgroundColor = '#2e7d32'; // Dark green
-            cellGrandTotal.style.color = 'white';
+            // --- Hapus data dari Local Storage ---
+            localStorage.removeItem('igdReportData');
+            // ------------------------------------
 
-            // 6. Panggil fungsi Chart untuk menampilkan visualisasi
-            buatChartLaporan(dataBulanIni); 
+            // 4. Update laporan dan nonaktifkan tombol salin
+            generateReport();
+            
+            // 5. Tampilkan notifikasi toast
+            showNotification('Semua data input telah dihapus!', 'text-red-700');
         }
 
-        // FUNGSI EKSPOR XLSX (LANDSCAPE/TRANSPOSE)
-        async function eksporLaporanXLSX_Transpose() {
-            const bulanFilter = document.getElementById('bulan-filter').value;
-            if (!bulanFilter) {
-                alert("Pilih bulan terlebih dahulu untuk diekspor!");
-                return;
+        /* ===========================================
+           LOGIKA DARK MODE TAMBAHAN
+        ============================================ */
+        const darkToggle = document.getElementById("darkToggle");
+
+        // Fungsi untuk menerapkan mode gelap
+        function applyDarkModePreference() {
+            if (localStorage.getItem("darkMode") === "enabled") {
+                document.documentElement.classList.add("dark");
+            } else {
+                document.documentElement.classList.remove("dark");
             }
+        }
 
-            const semuaData = await ambilSemuaDataLaporan();
-            const dataBulanIni = semuaData.filter(item => item.tanggal.startsWith(bulanFilter));
-            
-            if (dataBulanIni.length === 0) {
-                 alert("Tidak ada data untuk diekspor.");
-                 return;
+        // Toggle action
+        darkToggle.addEventListener("click", () => {
+            const isDark = document.documentElement.classList.toggle("dark");
+            if (isDark) {
+                localStorage.setItem("darkMode", "enabled");
+            } else {
+                localStorage.removeItem("darkMode");
             }
-
-            // Data Keys & Headers (Filter keluar 'Tanggal' karena akan jadi Header Baris)
-            const reportDataKeys = dataKeysReport.slice(1);
-            const reportKolomHeader = kolomHeader.slice(1); 
-
-            // 1. Persiapan Data Transpose
-            let finalDataXLSX = [];
+        });
+        /* ===========================================
+           AKHIR LOGIKA DARK MODE TAMBAHAN
+        ============================================ */
+        
+        // Atur nilai default saat halaman dimuat dan tambahkan listener input
+        window.onload = function() {
             
-            // a. Buat Header Kolom Pertama: Kategori, diikuti oleh Tanggal (Hanya Hari), lalu Total Bulan
-            const dates = dataBulanIni.map(item => item.tanggal.split('-')[2]); 
-            
-            const headerRow = ["Kategori", ...dates, "TOTAL BULAN"];
-            finalDataXLSX.push(headerRow);
-            
-            // Array untuk menyimpan Total Pasien Harian (untuk dihitung Grand Totalnya di akhir)
-            let totalPasienBulanIni = 0; 
+            // --- Terapkan preferensi Dark Mode saat dimuat ---
+            applyDarkModePreference(); 
+            // -------------------------------------------------
 
-            reportKolomHeader.forEach((displayHeader, index) => {
-                const dataKey = reportDataKeys[index]; 
-                const row = [displayHeader]; // Mulai baris dengan nama Kategori
-                
-                let totalMetric = 0;
-                
-                // Loop melalui setiap hari/kolom
-                dataBulanIni.forEach(dayData => {
-                    const value = dayData[dataKey];
+            // --- MUAT DATA TERSIMPAN SAAT HALAMAN DIBUKA ---
+            loadData();
+            
+            // Sembunyikan pesan peringatan dokter saat pertama kali dimuat
+            document.getElementById('doctorWarningMessage').classList.add('hidden'); 
 
-                    if (displayHeader.includes('Ket.')) {
-                        // Data Teks/Keterangan
-                        const ketValue = String(value || '').replace(/\n/g, ' | '); // Membersihkan keterangan multi-baris
-                        row.push(ketValue);
-                    } else {
-                        // Data Numerik
-                        const numValue = parseInt(value) || 0;
-                        row.push(numValue);
-                        totalMetric += numValue;
-                        
-                        // Hanya menghitung grand total untuk baris 'totalPasien'
-                        if (dataKey === 'totalPasien') {
-                            totalPasienBulanIni += numValue;
-                        }
-                    }
+            // Tambahkan listener 'input' pada semua input teks/textarea, number, dan select 
+            // agar laporan dan penyimpanan terupdate saat mengetik/memilih
+            const allInputs = document.querySelectorAll('input, textarea, select');
+            allInputs.forEach(input => {
+                // Gunakan event 'change' untuk select dan 'input' untuk yang lain
+                const eventType = (input.tagName === 'SELECT') ? 'change' : 'input'; 
+                input.addEventListener(eventType, () => {
+                    generateReport();
+                    // --- SIMPAN DATA SETELAH SETIAP PERUBAHAN INPUT ---
+                    saveData(); 
                 });
-                
-                // Tambahkan Total Bulan di akhir baris
-                row.push(displayHeader.includes('Ket.') ? '' : totalMetric); // Keterangan tidak di-total
-                
-                finalDataXLSX.push(row);
+            });
+            
+            // 1. Setup Collapsible Shift (Akordeon)
+            allShiftNames.forEach(shift => {
+                setupCollapsibleShift(shift);
             });
 
-            // c. Tambahkan Baris Grand Total
-            let totalHarianRow = ["TOTAL HARIAN"]; 
-            
-            // Kita harus mencari index baris 'totalPasien' di array finalDataXLSX
-            const totalPasienDataIndex = reportDataKeys.indexOf('totalPasien'); 
+            // 2. Setup Collapsible Changelog (Dropdown)
+            setupChangelogToggle();
 
-            dates.forEach((date, dateIndex) => {
-                // Ambil data dari baris yang sudah diolah (finalDataXLSX[totalPasienDataIndex + 1])
-                // dateIndex + 1 karena index 0 adalah 'Kategori'
-                const dailyTotal = finalDataXLSX[totalPasienDataIndex + 1] ? finalDataXLSX[totalPasienDataIndex + 1][dateIndex + 1] : 0; 
-                totalHarianRow.push(dailyTotal || 0);
+            // 3. Jalankan generasi laporan pertama kali untuk menampilkan format awal
+            generateReport();
+
+            // --- FUNGSI BARU: TOMBOL NAVIGASI (3 TOMBOL) ---
+            document.getElementById('navBtn1').addEventListener('click', () => {
+                // GANTI DENGAN URL WEBSITE 1
+                window.open('https://igdrsdh.github.io/Laporan-Bulanan/', '_blank'); 
             });
-            totalHarianRow.push(totalPasienBulanIni); // Total Pasien Bulanan
-            finalDataXLSX.push(totalHarianRow);
-
-            // 2. Buat Workbook XLSX
-            const ws = XLSX.utils.aoa_to_sheet(finalDataXLSX); 
-            
-            // --- START: MODIFIKASI STYLING XLSX (Warna dan Freeze Pane) ---
-            
-            // Styles definition
-            const styles = {
-                header: { fill: { patternType: "solid", fgColor: { rgb: "3949AB" } }, font: { color: { rgb: "FFFFFF" }, bold: true } }, // Biru Tua (Header)
-                totalBulan: { fill: { patternType: "solid", fgColor: { rgb: "E8EAF6" } }, font: { bold: true } }, // Biru Muda (Kolom Total)
-                grandTotal: { fill: { patternType: "solid", fgColor: { rgb: "E8F5E9" } }, font: { bold: true, color: { rgb: "2E7D32" } } }, // Hijau Muda (Baris Grand Total)
-                rj: { fill: { patternType: "solid", fgColor: { rgb: "FFFDE7" } } }, // Krem Muda (RJ)
-                ri: { fill: { patternType: "solid", fgColor: { rgb: "E0F7FA" } } }, // Biru Muda (RI)
-                khusus: { fill: { patternType: "solid", fgColor: { rgb: "FFE0B2" } } } // Oranye Muda (Khusus)
-            };
-
-            // Terapkan Style pada Sel
-            for (let R = 0; R < finalDataXLSX.length; ++R) {
-                const rowData = finalDataXLSX[R];
-                const category = String(rowData[0]); 
-
-                for (let C = 0; C < rowData.length; ++C) {
-                    const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
-                    const cell = ws[cellAddress]; 
-
-                    if (cell) {
-                        let cellStyle = {};
-                        
-                        if (R === 0) {
-                            // Style untuk Baris Header (Baris 1)
-                            cellStyle = styles.header;
-                        } else if (category === 'TOTAL HARIAN') {
-                            // Style untuk Baris Grand Total (Baris terakhir)
-                            if (C === rowData.length - 1) {
-                                 // Kolom Total Bulanan di Grand Total
-                                 cellStyle = { ...styles.grandTotal, fill: styles.grandTotal.fill, font: { ...styles.grandTotal.font, color: { rgb: "FFFFFF" } } };
-                            } else {
-                                 // Kolom Total Harian
-                                 cellStyle = styles.grandTotal; 
-                            }
-                            
-                        } else if (C === rowData.length - 1) {
-                            // Style untuk Kolom TOTAL BULAN (Kolom terakhir)
-                            cellStyle = styles.totalBulan;
-                        } else {
-                            // Style Latar Belakang berdasarkan Kategori
-                            if (category.includes('RJ') && !category.includes('Ket.')) {
-                                cellStyle = styles.rj;
-                            } else if (category.includes('RI') && !category.includes('Ket.')) {
-                                cellStyle = styles.ri;
-                            } else if (category.includes('Dirujuk') || category.includes('Ditolak') || category.includes('Rujukan Masuk') || category.includes('Meninggal') || category.includes('DOA') || category.includes('Ket.')) {
-                                 cellStyle = styles.khusus;
-                            }
-                        }
-                        
-                        // Menerapkan style dengan menggabungkan style yang sudah ada (misalnya number format 'z')
-                        cell.s = { ...cell.s, ...cellStyle }; 
-                    }
-                }
-            }
-
-            // Tambahkan Fitur 'Freeze Pane' pada Header dan Kolom Kategori
-            ws['!freeze'] = { xSplit: 1, ySplit: 1 };
-            
-            // --- END: MODIFIKASI STYLING XLSX ---
-
-
-            // PENTING: Penyesuaian Lebar Kolom
-            const wscols = [];
-            wscols.push({wch: 25}); // Kolom A (Kategori): Lebar 25
-            for(let i = 0; i < dates.length; i++) {
-                 wscols.push({wch: 6}); // Kolom Tanggal: Lebar 6 (Lebih kecil karena hanya angka)
-            }
-            wscols.push({wch: 15}); // Kolom Terakhir (TOTAL BULAN): Lebar 15
-            ws['!cols'] = wscols;
-
-            // *** KONFIGURASI PENGATURAN CETAK (PRINT LAYOUT) ***
-            if (!ws['!page']) ws['!page'] = {};
-            
-            // 1. Atur Orientasi ke LANDSCAPE
-            ws['!page'].orientation = 'landscape'; 
-
-            // 2. Atur Fit-to-Page (agar muat di satu lebar kertas)
-            ws['!page'].fitToPage = true;   
-            ws['!page'].fitToWidth = 1;     // Paksa agar lebar data hanya 1 halaman
-            ws['!page'].fitToHeight = 0;    // Biarkan tinggi menyesuaikan
-
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Laporan Transpose");
-
-            // 3. Tentukan Nama File dan Unduh
-            const [tahun, bulan] = bulanFilter.split('-');
-            const namaFile = `Laporan_Transpose_XLSX_Compact_${tahun}_${bulan}.xlsx`;
-            
-            XLSX.writeFile(wb, namaFile);
-            
-            alert(`Laporan XLSX Transpose Compact untuk bulan ${bulanFilter} berhasil diekspor.`);
+            document.getElementById('navBtn2').addEventListener('click', () => {
+                // GANTI DENGAN URL WEBSITE 2
+                window.open('https://igdrsdh.github.io/Multitool-IGD/', '_blank'); 
+            });
+            document.getElementById('navBtn3').addEventListener('click', () => {
+                // GANTI DENGAN URL WEBSITE 3
+                window.open('https://drive.google.com/drive/folders/1yKZu0DHZ0k084Q6p0FAW63Oc7Zy3e9ZF', '_blank'); 
+            });
+            // ------------------------------------------
         }
-
-        window.onload = async function() {
-            // Set tanggal hari ini
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0');
-            const day = String(today.getDate()).padStart(2, '0');
-            const defaultDate = `${year}-${month}-${day}`;
-            
-            document.getElementById('tanggal').value = defaultDate;
-            
-            // Memuat data dari Firebase
-            await muatDataTanggal(); 
-            // Memuat filter bulan dari data yang ada di Firebase
-            await inisialisasiBulanFilter();
-            // Menampilkan laporan untuk bulan terbaru
-            await tampilkanLaporan();
-            // PENTING: Memuat Changelog DATA saat halaman pertama kali dimuat
-            await muatChangelog();
-        };
     </script>
 </body>
 </html>
