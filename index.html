@@ -11,101 +11,41 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script> 
     <style>
-        /* --- START: VARIABEL CSS KUSTOM UNTUK THEME --- */
-        :root {
-            /* Warna Mode Terang (Default) */
-            --bg-body: #f4f7f6; 
-            --bg-container: #ffffff;
-            --bg-section: #f9f9f9; 
-            --bg-input-group: #eceff1; 
-            --bg-input-pair: #ffffff;
-            --bg-input-khusus: #fbfbfb;
-            --bg-calculated-input: #e3f2fd;
-            --bg-chart-container: #ffffff;
-
-            --color-text: #333;
-            --color-header-main: #1a237e; 
-            --color-header-secondary: #3949ab; 
-            --color-header-tertiary: #00897b;
-            --color-border-main: #e0e0e0;
-            --color-border-sub: #cfd8dc;
-            --color-shadow: rgba(0, 0, 0, 0.08);
-
-            --bg-table-header: #3949ab;
-            --bg-table-rj: #fffde7;
-            --bg-table-ri: #e0f7fa;
-            --bg-table-khusus: #ffe0b2;
-            --bg-table-khusus-ket: #ffcc80;
-            --bg-table-total: #c5cae9;
-            --bg-total-div: #e8f5e9;
-            --color-total-div: #2e7d32;
-        }
-
-        /* Gaya Mode Gelap (Dark Soft) */
-        .dark-mode {
-            --bg-body: #282c34; /* Dark Navy/Gray */
-            --bg-container: #3c414c; /* Slightly Lighter Dark */
-            --bg-section: #494e5a; 
-            --bg-input-group: #525763; 
-            --bg-input-pair: #494e5a;
-            --bg-input-khusus: #525763;
-            --bg-calculated-input: #62697b; /* Darker Blue Gray */
-            --bg-chart-container: #494e5a;
-
-            --color-text: #f0f0f0; /* Light Text */
-            --color-header-main: #bb86fc; /* Bright Purple/Accent */
-            --color-header-secondary: #03dac6; /* Teal/Cyan Accent */
-            --color-header-tertiary: #a7ffeb; /* Light Teal Accent */
-            --color-border-main: #585858;
-            --color-border-sub: #6c707a;
-            --color-shadow: rgba(0, 0, 0, 0.35);
-
-            --bg-table-header: #bb86fc;
-            --bg-table-rj: #525763; /* Darker RJ */
-            --bg-table-ri: #446666; /* Darker RI */
-            --bg-table-khusus: #665040; /* Darker Khusus */
-            --bg-table-khusus-ket: #786050;
-            --bg-table-total: #4c4a67;
-            --bg-total-div: #3c414c;
-            --color-total-div: #03dac6;
-        }
-        /* --- END: VARIABEL CSS KUSTOM UNTUK THEME --- */
-
-        /* BASE STYLES - MENGGUNAKAN VARIABEL */
+        /* BASE STYLES - TEMA BARU: Profesional & Rapi */
         body {
             font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-body); 
-            color: var(--color-text); 
+            background-color: #f4f7f6; /* Off-white / Light Gray */
+            color: #333; /* Dark text */
             margin: 0;
             padding: 20px;
             display: flex;
             justify-content: center;
-            transition: background-color 0.3s, color 0.3s; /* Transisi untuk mode gelap */
         }
 
         .container {
-            background-color: var(--bg-container);
+            /* MENAMBAH LEBAR MAKSIMUM & PUSAT */
+            background-color: #ffffff;
             padding: 30px; 
             border-radius: 12px; 
-            box-shadow: 0 4px 20px var(--color-shadow); 
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); /* Shadow yang lebih halus */
             max-width: 1400px; 
             width: 95%; 
             margin: auto; 
         }
 
         h1 {
-            color: var(--color-header-main); 
+            color: #1a237e; /* Deep Blue Header */
             text-align: center;
             margin-bottom: 30px; 
             font-size: 2.2em;
             font-weight: 700; 
-            border-bottom: 3px solid var(--color-border-main);
+            border-bottom: 3px solid #e0e0e0;
             padding-bottom: 10px;
         }
 
         h2 {
-            color: var(--color-header-secondary); 
-            border-left: 5px solid var(--color-header-secondary); 
+            color: #3949ab; /* Blue Accent */
+            border-left: 5px solid #3949ab; 
             padding-left: 10px;
             margin-top: 25px;
             margin-bottom: 20px;
@@ -114,11 +54,11 @@
         }
 
         h3 {
-            color: var(--color-header-tertiary); 
+            color: #00897b; /* Teal Accent */
             font-size: 1.2em;
             font-weight: 600;
             margin-bottom: 15px;
-            width: 100%; 
+            width: 100%; /* Agar judul group penuh */
         }
 
         /* INPUT & FORM STYLES */
@@ -126,17 +66,20 @@
             margin-bottom: 30px;
             padding: 25px;
             border-radius: 10px;
-            background-color: var(--bg-section); 
-            border: 1px solid var(--color-border-main);
+            background-color: #f9f9f9; 
+            border: 1px solid #e0e0e0;
         }
 
         label {
-            color: var(--color-text); /* Menggunakan warna teks umum */
+            display: block;
+            margin-top: 5px;
+            font-weight: 500; 
+            margin-bottom: 5px;
+            color: #555; 
         }
 
         input[type="date"],
-        select,
-        textarea { /* Tambahkan textarea ke sini */
+        select {
             width: 100%;
             padding: 10px; 
             margin-top: 0;
@@ -145,72 +88,230 @@
             border-radius: 6px;
             box-sizing: border-box;
             transition: border-color 0.3s, box-shadow 0.3s;
-            background-color: var(--bg-input-pair); /* Gunakan warna latar belakang input group */
-            color: var(--color-text); /* Penting: agar teks input terlihat */
+            background-color: #ffffff;
         }
-        
-        /* Menggunakan warna yang tetap untuk highlight/focus agar kontras */
-        input:focus, select:focus, textarea:focus {
-            border-color: #42a5f5; 
+        input:focus, select:focus {
+            border-color: #42a5f5; /* Light Blue Focus */
             box-shadow: 0 0 8px rgba(66, 165, 245, 0.4);
             outline: none;
         }
 
-        /* ... [CSS untuk button, input-group, input-pair-wrapper dll. DIBIARKAN SAMA, HANYA MODIFIKASI WARNA DI BAWAH] ... */
+        button {
+            background-color: #43a047; /* Green Save */
+            color: white;
+            padding: 10px 20px; 
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em; 
+            font-weight: 600;
+            transition: background-color 0.3s, transform 0.1s, box-shadow 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin: 0; 
+        }
+
+        button:hover {
+            background-color: #388e3c; 
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
         
+        button.export-button {
+            background-color: #fb8c00; /* Orange Export */
+            margin-right: 0 !important;
+        }
+        button.export-button:hover {
+            background-color: #f57c00; 
+        }
+
+        button.reset-button {
+            background-color: #ffb300; /* Amber Yellow Reset */
+        }
+        button.reset-button:hover {
+            background-color: #ff8f00; 
+        }
+
+        button.delete-button {
+            background-color: #e53935; /* Red Delete All Data */
+        }
+        button.delete-button:hover {
+            background-color: #c62828; 
+        }
+        
+        /* TOMBOL BARU: Hapus Data Tanggal Ini */
+        button.delete-date-button {
+            background-color: #8c0000; /* Darker Red for specific deletion */
+        }
+        button.delete-date-button:hover {
+            background-color: #6d0000; 
+        }
+        
+        /* INPUT GROUPS - LAYOUT UMUM */
         .input-group {
             margin-bottom: 25px; 
             padding: 20px 15px; 
-            border: 1px solid var(--color-border-sub); 
+            border: 1px solid #cfd8dc; 
             border-radius: 8px;
-            background-color: var(--bg-input-group); 
+            background-color: #eceff1; 
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
         }
 
+        /* 1. INPUT BERPASANGAN (ASURANSI & SPESIALISASI) */
         .input-pair-wrapper {
-            width: 48%; 
+            width: 48%; /* 2 kolom utama di desktop */
             margin-bottom: 25px;
             padding: 10px;
-            border: 1px solid var(--color-border-sub);
+            border: 1px solid #cfd8dc;
             border-radius: 6px;
-            background-color: var(--bg-input-pair); 
+            background-color: #ffffff; 
         }
 
         .main-label {
-            color: var(--color-header-main); 
-            border-bottom: 1px dotted var(--color-border-main);
+            font-weight: 600;
+            color: #1a237e; 
+            display: block;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px dotted #ccc;
+            font-size: 1.1em;
         }
         
+        .input-sub-pair {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .input-sub-item {
+            flex-grow: 1;
+        }
+        .input-sub-item label {
+            font-weight: 400; 
+            color: #555;
+            font-size: 0.9em;
+            margin-top: 0;
+            margin-bottom: 2px;
+        }
         .input-sub-item input[type="number"] {
-            background-color: var(--bg-input-pair); 
+            width: 100%;
+            padding: 8px; 
+            margin: 0;
+            text-align: left; 
+            box-sizing: border-box;
+            background-color: #fff; 
             border: 1px solid #90a4ae; 
         }
-        
-        /* PENTING: Style untuk input yang dikalkulasi otomatis (read-only) */
-        .input-item input[type="number"][readonly] {
-            background-color: var(--bg-calculated-input); 
-            font-weight: bold;
-            color: var(--color-header-main);
+
+        /* 2. INPUT TUNGGAL (TOTALS) */
+        .input-item {
+            display: flex;
+            flex-direction: column;
+            width: 30%; 
+            margin-bottom: 15px; 
+        }
+        .input-item input[type="number"] {
+             padding: 10px; 
+            margin: 0;
+            text-align: left; 
+            box-sizing: border-box;
+            background-color: #fff; 
+            border: 1px solid #90a4ae; 
         }
 
+        /* PENTING: Style untuk input yang dikalkulasi otomatis (read-only) */
+        .input-item input[type="number"][readonly] {
+            background-color: #e3f2fd; /* Light blue background for calculated fields */
+            font-weight: bold;
+            color: #1a237e;
+        }
+
+        /* ************************************** */
+        /* PENYESUAIAN KHUSUS UNTUK KEJADIAN KHUSUS (SECTION 3) */
+        /* ************************************** */
         .input-khusus-wrapper {
-            border: 1px solid #b0bec5; 
-            background-color: var(--bg-input-khusus);
+            width: 100%; /* Setiap item Kejadian Khusus mengambil 100% lebar */
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #b0bec5; /* Light Blue-Gray border */
+            border-radius: 6px;
+            background-color: #fbfbfb;
         }
         
         .main-label-khusus {
-            color: var(--color-header-tertiary); 
-            border-bottom: 1px dashed var(--color-border-sub);
+            font-weight: 600;
+            color: #00897b; /* Teal color */
+            display: block;
+            margin-bottom: 8px;
+            padding-bottom: 4px;
+            border-bottom: 1px dashed #cfd8dc;
+            font-size: 1.05em;
+        }
+        
+        .input-sub-pair-khusus {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+        
+        .input-khusus-jumlah {
+            flex-basis: 150px; /* Lebar tetap untuk input jumlah */
+            flex-shrink: 0;
+        }
+        
+        .input-khusus-keterangan {
+            flex-grow: 1; /* Mengambil sisa ruang untuk keterangan */
         }
         
         /* PENTING: Style untuk TEXTAREA */
         .input-khusus-keterangan textarea {
-            background-color: var(--bg-input-pair);
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 0;
+            border: 1px solid #bdbdbd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            resize: vertical; /* Hanya izinkan resize vertikal */
+            min-height: 80px; /* Ketinggian minimum agar bisa menampilkan list */
+        }
+
+        /* Penyesuaian Responsif */
+        @media (max-width: 1200px) {
+            .input-pair-wrapper {
+                width: 100%; 
+            }
+            .input-item {
+                width: 48%; 
+            }
+        }
+        @media (max-width: 768px) {
+            .input-sub-pair-khusus {
+                flex-direction: column; /* Tumpuk di layar kecil */
+                gap: 5px;
+            }
+            .input-khusus-jumlah {
+                flex-basis: auto;
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            .input-item {
+                width: 48%; 
+            }
+        }
+        @media (max-width: 600px) {
+             .input-item {
+                width: 100%; 
+            }
         }
         
-        /* TABLE STYLES - MENGGUNAKAN VARIABEL */
+        .input-item input[type="number"]:not([readonly]):focus,
+        .input-sub-item input[type="number"]:focus,
+        .input-khusus-keterangan textarea:focus { 
+             border-color: #00acc1; 
+             box-shadow: 0 0 6px rgba(0, 172, 193, 0.4);
+        }
+        
+        /* TABLE STYLES */
         #laporan-tabel {
             width: 100%;
             border-collapse: collapse;
@@ -220,7 +321,7 @@
         }
 
         #laporan-tabel th, #laporan-tabel td {
-            border: 1px solid var(--color-border-main); 
+            border: 1px solid #e0e0e0; 
             padding: 8px 6px; 
             text-align: left;
             min-width: 50px; 
@@ -229,59 +330,82 @@
         }
         
         #laporan-tabel th {
-            background-color: var(--bg-table-header); 
+            background-color: #3949ab; 
             color: white;
             text-align: center;
             font-size: 0.85em;
         }
         
+        #laporan-tabel td.keterangan-cell {
+            min-width: 150px; 
+            max-width: 300px;
+            white-space: pre-wrap; 
+            text-overflow: clip; 
+            overflow: visible; 
+            font-size: 0.75em; 
+        }
+        
         .total-row {
             font-weight: bold;
-            background-color: var(--bg-table-total) !important; 
-            color: var(--color-header-main);
+            background-color: #c5cae9 !important; 
+            color: #1a237e;
         }
         
         /* Style untuk Kolom Total di format Transpose */
         #laporan-tabel tr td:last-child {
-            background-color: var(--bg-table-total); 
+            background-color: #e8eaf6; 
             font-weight: bold;
         }
         
-        /* KELAS WARNA BARIS */
+        /* ************************************** */
+        /* PENAMBAHAN STYLE KUSTOM UNTUK LAPORAN TRANSPOSE */
+        /* ************************************** */
+
+        /* Kelas untuk baris Rawat Jalan (RJ) */
         .row-rj td:not(:first-child):not(:last-child) {
-            background-color: var(--bg-table-rj); 
+            background-color: #fffde7; /* Krem Muda (Light Yellow) */
         }
 
+        /* Kelas untuk baris Rawat Inap (RI) */
         .row-ri td:not(:first-child):not(:last-child) {
-            background-color: var(--bg-table-ri); 
+            background-color: #e0f7fa; /* Biru Muda (Light Cyan) */
         }
         
+        /* Kelas untuk baris Umum/Lainnya */
         .row-umum td:not(:first-child):not(:last-child) {
-            background-color: var(--bg-section); /* Warna section */
+            background-color: #f5f5f5; /* Warna netral */
         }
 
+        /* Kelas untuk baris Kejadian Khusus */
         .row-khusus td:not(:first-child):not(:last-child) {
-            background-color: var(--bg-table-khusus); 
+            background-color: #ffe0b2; /* Oranye muda untuk Kejadian Khusus */
         }
 
+        /* Override khusus untuk cell KETERANGAN di Kejadian Khusus agar menonjol */
         .row-khusus .keterangan-cell {
-            background-color: var(--bg-table-khusus-ket) !important; 
+            background-color: #ffcc80 !important; /* Oranye sedikit lebih tua */
             font-weight: 500;
         }
 
+        /* Penting: Pastikan baris total tetap menggunakan warna aslinya */
+        /* KECUALI yang baru ditambahkan (TOTAL HARIAN) */
         #laporan-tabel .total-row {
-            background-color: var(--bg-table-total) !important; 
+            background-color: #e8eaf6 !important; 
         }
         
         /* Border Vertikal Pemisah TEBAL */
+        /* 1. Pemisah antara TOTAL PASIEN & SPESIALISASI: Kolom 'Total RI' (index 6 dari kolom data) */
+        /* Ini adalah kolom ke-7 dari kiri (kolom Kategori adalah ke-1) */
         #laporan-tabel th:nth-child(7), 
         #laporan-tabel td:nth-child(7) {
-            border-right: 3px solid var(--color-header-main); 
+            border-right: 3px solid #1a237e; /* Border Biru Tua */
         }
         
+        /* 2. Pemisah antara SPESIALISASI & KEJADIAN KHUSUS: Kolom 'Mata RI' (index 19 dari kolom data) */
+        /* Ini adalah kolom ke-21 dari kiri */
         #laporan-tabel th:nth-child(21), 
         #laporan-tabel td:nth-child(21) {
-            border-right: 3px solid var(--color-header-tertiary); 
+            border-right: 3px solid #00897b; /* Border Teal */
         }
 
 
@@ -290,59 +414,83 @@
             font-size: 1.3em; 
             font-weight: bold;
             padding: 15px; 
-            background-color: var(--bg-total-div); 
+            background-color: #e8f5e9; 
             border-radius: 8px;
             text-align: right;
-            color: var(--color-total-div); 
-            box-shadow: 0 2px 5px var(--color-shadow);
+            color: #2e7d32; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .report-controls {
+            display: flex; 
+            gap: 15px; 
+            margin-bottom: 20px; 
+            align-items: center;
+            justify-content: flex-start;
         }
 
-        /* CHART CONTAINER */
-        #chart-container {
-            background-color: var(--bg-chart-container);
+        .input-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap; 
+        }
+        .input-controls button {
+            flex-grow: 1;
+            padding: 12px 20px; 
         }
 
-        /* CHANGELOG */
+        .input-controls button:first-child {
+            flex-grow: 2; 
+        }
+        
+        /* ************************************** */
+        /* STYLE BARU UNTUK CHANGELOG (RIWAYAT PERUBAHAN) */
+        /* ************************************** */
         .changelog-section {
-            background-color: #e0f2f1; /* Teal-White - KEEPING BRIGHT for contrast */
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 10px;
+            background-color: #e0f2f1; /* Light Teal Background */
             border: 1px solid #b2dfdb;
         }
 
-        .dark-mode .changelog-section {
-            background-color: #55606e; /* Darker Teal for dark mode */
-            border: 1px solid #78909c;
+        .changelog-section summary {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #004d40; /* Dark Teal Text */
+            cursor: pointer;
+            padding: 10px 0;
         }
         
-        /* --- STYLE BARU UNTUK TOMBOL MODE GELAP --- */
-        .theme-toggle {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            margin-bottom: 15px;
-            gap: 10px;
-        }
-        
-        #toggle-theme-button {
-            background-color: #607d8b; /* Blue-Gray */
-            color: white;
-            padding: 8px 15px; 
-            font-size: 0.9em;
+        .changelog-section details[open] summary {
+             border-bottom: 2px solid #004d40;
+             margin-bottom: 15px;
         }
 
-        #toggle-theme-button:hover {
-            background-color: #546e7a;
-            transform: translateY(-1px);
+        .changelog-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .changelog-item {
+            padding: 10px 0;
+            border-bottom: 1px dashed #b2dfdb;
+            line-height: 1.4;
+        }
+
+        .changelog-item:last-child {
+            border-bottom: none;
+        }
+
+        .changelog-item strong {
+            color: #3949ab;
         }
         
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="theme-toggle">
-            <span id="theme-status">Mode Terang</span>
-            <button id="toggle-theme-button" onclick="toggleTheme()">☀️ Ganti Mode</button>
-        </div>
-        
         <h1>🏥 Input Data Harian Laporan Pelayanan (Cloud Firestore) <small style="font-size: 0.6em; color: #616161; font-weight: 400;">(Versi 1.2)</small></h1>
         
         <div class="input-section">
@@ -583,7 +731,7 @@
         <div class="report-section">
             <h2>Laporan Data Bulanan (Tanggal ke Samping)</h2>
             
-            <div id="chart-container" style="max-width: 100%; height: 350px; margin-bottom: 30px; border: 1px solid #e0e0e0; border-radius: 8px; padding: 10px; background-color: var(--bg-chart-container);">
+            <div id="chart-container" style="max-width: 100%; height: 350px; margin-bottom: 30px; border: 1px solid #e0e0e0; border-radius: 8px; padding: 10px; background-color: #ffffff;">
                 <canvas id="monthly-chart"></canvas>
             </div>
             <div class="report-controls">
@@ -632,7 +780,7 @@
         </div>
 
     <script>
-        // ... [KONFIGURASI FIREBASE DAN ARRAY DATA DIBIARKAN SAMA] ...
+        // 2. KONFIGURASI DAN INISIALISASI FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyD4CJjUxraBYsuBMPf8mJKOJI8-wbLGedQ",
             authDomain: "laporan-bulanan-b79f3.firebaseapp.com",
@@ -644,8 +792,9 @@
         };
         const app = firebase.initializeApp(firebaseConfig);
         const db = app.firestore();
-        const COLLECTION_NAME = 'laporanHarian';
+        const COLLECTION_NAME = 'laporanHarian'; // Nama koleksi di Firestore
         
+        // Daftar semua ID input angka dan textarea (keterangan)
         const INPUT_IDS = [
             'bpjsRj', 'bpjsRi', 'swastaRj', 'swastaRi', 'totalPasien', 'totalRi', 
             'pdRj', 'pdRi', 'bedahRj', 'bedahRi', 'anakRj', 'anakRi', 'syarafRj', 'syarafRi', 
@@ -713,7 +862,7 @@
             "DOA", "Ket. DOA"
         ];
         
-        // ... [FUNGSI-FUNGSI LAINNYA DIBIARKAN SAMA (muatChangelog, updateTotals, ambilSemuaDataLaporan, muatDataTanggal, hapusDataPerTanggal, resetInputFields, hapusSemuaData, tambahData, buatChartLaporan, inisialisasiBulanFilter, tampilkanLaporan, eksporLaporanXLSX_Transpose)] ...
+        // --- START: FUNGSI BARU UNTUK CHANGELOG DATA ---
 
         // Helper untuk memformat timestamp dari Firebase
         function formatTimestamp(timestamp) {
@@ -732,10 +881,12 @@
 
         // FUNGSI FIREBASE: MUAT RIWAYAT PERUBAHAN (CHANGELOG DATA)
         async function muatChangelog() {
+            // Menggunakan ID yang ditargetkan di HTML: id="changelog-list"
             const listElement = document.getElementById('changelog-list');
             listElement.innerHTML = '<li>Memuat data perubahan...</li>';
 
             try {
+                // Ambil 10 dokumen terbaru, diurutkan berdasarkan timestamp (last update/creation)
                 const snapshot = await db.collection(COLLECTION_NAME)
                                          .orderBy('timestamp', 'desc')
                                          .limit(10)
@@ -750,8 +901,10 @@
                         const tanggal = data.tanggal;
                         const timestamp = data.timestamp;
 
-                        const totalPasien = (data.totalPasien || 0); 
+                        // Hitung total pasien untuk ditampilkan di changelog
+                        const totalPasien = (data.totalPasien || 0); // Ambil dari field totalPasien yang dihitung
                         
+                        // Format tanggal dan waktu
                         const waktuUpdate = formatTimestamp(timestamp);
 
                         htmlList += `
@@ -770,7 +923,9 @@
                 listElement.innerHTML = '<li>Gagal memuat riwayat perubahan data. Cek konsol.</li>';
             }
         }
-        
+        // --- END: FUNGSI BARU UNTUK CHANGELOG DATA ---
+
+
         // FUNGSI LOKAL: Kalkulasi Otomatis Total
         function updateTotals() {
             const bpjsRj = parseInt(document.getElementById('bpjsRj').value) || 0;
@@ -788,6 +943,7 @@
         // FUNGSI FIREBASE BARU: AMBIL SEMUA DATA (untuk Laporan)
         async function ambilSemuaDataLaporan() {
             try {
+                // Ambil semua dokumen, diurutkan berdasarkan field 'tanggal'
                 const snapshot = await db.collection(COLLECTION_NAME).orderBy('tanggal').get();
                 const semuaData = [];
                 snapshot.forEach(doc => {
@@ -820,6 +976,7 @@
                     INPUT_IDS.forEach(id => {
                         const inputElement = document.getElementById(id);
                         if (inputElement) {
+                            // Memuat angka atau teks/textarea (keterangan)
                             inputElement.value = dataDitemukan[id] !== undefined ? dataDitemukan[id] : 
                                 (inputElement.tagName === 'INPUT' && inputElement.type === 'number' ? 0 : '');
                         }
@@ -833,6 +990,7 @@
                  console.error("Gagal memuat data dari Firebase: ", error);
                  alert("Gagal memuat data. Lihat konsol untuk detailnya.");
             }
+            // PENTING: Panggil updateTotals setelah memuat atau mereset data
             updateTotals();
         }
 
@@ -852,9 +1010,9 @@
                     
                     alert(`Data untuk tanggal ${tanggalInput} berhasil dihapus dari Cloud Firestore.`);
                     resetInputFields(false); 
-                    await inisialisasiBulanFilter(); 
+                    await inisialisasiBulanFilter(); // Memuat ulang filter dan laporan
                     await tampilkanLaporan(); 
-                    await muatChangelog(); 
+                    await muatChangelog(); // REFRESH CHANGELOG
                 } catch (error) {
                     console.error("Gagal menghapus data dari Firebase: ", error);
                     alert("Gagal menghapus data. Pastikan Anda memiliki koneksi dan izin. Lihat konsol untuk detail.");
@@ -873,6 +1031,7 @@
                 const textInputs = document.querySelectorAll('textarea');
                 
                 numberInputs.forEach(input => {
+                    // Hanya reset input yang BUKAN readonly
                     if (!input.hasAttribute('readonly')) {
                          input.value = 0;
                     }
@@ -882,6 +1041,7 @@
                     input.value = '';
                 });
 
+                // PENTING: Panggil updateTotals setelah reset
                 updateTotals(); 
                 
                 if (konfirmasiUser) {
@@ -912,7 +1072,7 @@
                 resetInputFields(false); 
                 await inisialisasiBulanFilter(); 
                 await tampilkanLaporan();  
-                await muatChangelog();  
+                await muatChangelog(); // REFRESH CHANGELOG    
             } catch (error) {
                 console.error("Gagal menghapus semua data dari Firebase: ", error);
                 alert("Gagal menghapus semua data. Lihat konsol untuk detail.");
@@ -928,9 +1088,9 @@
                 return;
             }
 
-            updateTotals(); 
+            updateTotals(); // Pastikan nilai total Pasien dan RI sudah yang terbaru
 
-            // --- START: VALIDASI KONSISTENSI DATA ---
+            // --- START: VALIDASI KONSISTENSI DATA --- (Sama seperti sebelumnya)
             const bpjsRj = parseInt(document.getElementById('bpjsRj').value) || 0;
             const bpjsRi = parseInt(document.getElementById('bpjsRi').value) || 0;
             const swastaRj = parseInt(document.getElementById('swastaRj').value) || 0;
@@ -976,9 +1136,10 @@
             }
             // --- END: VALIDASI KONSISTENSI DATA ---
 
+            // Mengambil nilai dari semua input (angka dan textarea)
             const dataBaru = { 
                 tanggal: tanggalInput,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                timestamp: firebase.firestore.FieldValue.serverTimestamp() // Tambahkan timestamp
             };
             INPUT_IDS.forEach(id => {
                  const inputElement = document.getElementById(id);
@@ -1001,12 +1162,13 @@
                  }
 
                  if (confirm(konfirmasiPesan)) {
+                     // Menggunakan set() dengan ID dokumen = tanggalInput (Otomatis Create/Update)
                      await docRef.set(dataBaru);
                      alert(`Data untuk tanggal ${tanggalInput} berhasil disimpan/diperbarui di Cloud Firestore!`);
 
                      await inisialisasiBulanFilter(); 
                      await tampilkanLaporan(); 
-                     await muatChangelog();
+                     await muatChangelog(); // REFRESH CHANGELOG
                  } else {
                       alert("Penyimpanan/Pembaruan data dibatalkan.");
                  }
@@ -1027,13 +1189,6 @@
 
             const dates = dataBulanIni.map(item => item.tanggal.split('-').reverse().join('/'));
             const totalPasienHarian = dataBulanIni.map(item => item.totalPasien);
-            
-            // Perbarui warna Chart sesuai mode
-            const isDarkMode = document.body.classList.contains('dark-mode');
-            const borderColor = isDarkMode ? 'rgb(3, 218, 198)' : 'rgb(66, 165, 245)';
-            const backgroundColor = isDarkMode ? 'rgba(3, 218, 198, 0.5)' : 'rgba(66, 165, 245, 0.5)';
-            const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
-            const labelColor = isDarkMode ? '#f0f0f0' : '#333';
 
             monthlyChart = new Chart(ctx, {
                 type: 'line', 
@@ -1042,8 +1197,8 @@
                     datasets: [{
                         label: 'Total Pasien Harian',
                         data: totalPasienHarian,
-                        backgroundColor: backgroundColor,
-                        borderColor: borderColor,
+                        backgroundColor: 'rgba(66, 165, 245, 0.5)',
+                        borderColor: 'rgb(66, 165, 245)',
                         borderWidth: 2,
                         tension: 0.3,
                         fill: true
@@ -1056,27 +1211,20 @@
                         legend: {
                             display: true,
                             position: 'top',
-                            labels: {
-                                color: labelColor 
-                            }
                         },
                         title: {
                             display: true,
                             text: '📈 Tren Total Pasien Harian Bulan Ini',
-                            font: { size: 16, color: labelColor }
+                            font: { size: 16 }
                         }
                     },
                     scales: {
-                        x: {
-                            grid: { color: gridColor },
-                            ticks: { color: labelColor },
-                            title: { display: true, text: 'Tanggal', color: labelColor }
-                        },
                         y: {
                             beginAtZero: true,
-                            grid: { color: gridColor },
-                            ticks: { color: labelColor },
-                            title: { display: true, text: 'Jumlah Pasien', color: labelColor }
+                            title: {
+                                display: true,
+                                text: 'Jumlah Pasien'
+                            }
                         }
                     }
                 }
@@ -1112,6 +1260,7 @@
                 filter.appendChild(option);
             });
 
+            // Set filter ke bulan terbaru
             if (bulanArray.length > 0) {
                 filter.value = bulanArray[0];
             }
@@ -1123,6 +1272,7 @@
             const tabelContainer = document.getElementById('laporan-tabel');
             const totalDiv = document.getElementById('total-nilai');
             
+            // Ambil semua data dari Cloud
             const semuaData = await ambilSemuaDataLaporan();
             tabelContainer.innerHTML = '';
             totalDiv.textContent = '';
@@ -1141,11 +1291,14 @@
                 return;
             }
 
+            // Data Keys & Headers (Filter keluar 'Tanggal')
             const reportDataKeys = dataKeysReport.slice(1);
             const reportKolomHeader = kolomHeader.slice(1);
             
+            // 1. Ambil list tanggal untuk kolom (untuk tampilan HTML, tetap format DD/MM/YYYY)
             const dates = dataBulanIni.map(item => item.tanggal.split('-').reverse().join('/')); 
 
+            // 2. Buat Header Tabel (Tanggal)
             const headerRow = tabelContainer.createTHead().insertRow();
             
             let th = document.createElement('th');
@@ -1161,9 +1314,10 @@
 
             th = document.createElement('th');
             th.textContent = 'TOTAL BULAN';
-            th.style.backgroundColor = 'var(--color-header-main)'; /* Gunakan variabel CSS */
+            th.style.backgroundColor = '#1a237e'; 
             headerRow.appendChild(th);
 
+            // 3. Buat Body Tabel (Metrik sebagai Baris)
             const tabelBody = tabelContainer.createTBody();
             
             let totalPasienBulanIni = 0;
@@ -1175,22 +1329,26 @@
                 const rowClass = rowClassMap[displayHeader] || 'row-umum';
                 row.classList.add(rowClass);
 
+                // Cell 1: Nama Metrik
                 let cell = row.insertCell();
                 cell.textContent = displayHeader;
                 cell.style.fontWeight = 'bold';
                 
                 let totalMetric = 0;
                 
+                // Loop melalui setiap hari/kolom
                 dataBulanIni.forEach(dayData => {
                     cell = row.insertCell();
                     const value = dayData[dataKey];
 
                     if (displayHeader.includes('Ket.')) {
+                        // Data Teks/Keterangan
                         cell.textContent = value || '-';
                         cell.classList.add('keterangan-cell');
                         cell.style.textAlign = 'left';
                         
                     } else {
+                        // Data Numerik
                         const numValue = parseInt(value) || 0;
                         cell.textContent = numValue;
                         cell.style.textAlign = 'right';
@@ -1202,6 +1360,7 @@
                     }
                 });
                 
+                // Last Cell: Total Bulan
                 cell = row.insertCell();
                 if (displayHeader.includes('Ket.')) {
                     cell.textContent = '-'; 
@@ -1214,37 +1373,44 @@
                 }
             });
 
+            // 4. Update Grand Total (Div di bawah tabel)
             totalDiv.textContent = `TOTAL PASIEN BULAN INI: ${totalPasienBulanIni.toLocaleString('id-ID')}`;
             
+            // 5. Tambahkan Baris TOTAL HARIAN (Grand Total Harian)
             const totalHarianRow = tabelBody.insertRow();
+            // Gunakan class total-row yang sudah ada, lalu override warna latar
             totalHarianRow.classList.add('total-row'); 
-            totalHarianRow.style.backgroundColor = 'var(--bg-total-div)'; 
+            totalHarianRow.style.backgroundColor = '#e8f5e9'; // Light green background (matching XLSX grand total)
 
+            // Cell 1: Label
             let cellLabel = totalHarianRow.insertCell();
             cellLabel.textContent = 'TOTAL HARIAN (Semua Pasien)';
             cellLabel.style.textAlign = 'left';
             cellLabel.style.fontWeight = 'bold';
-            
+
+            // Loop melalui setiap hari/kolom untuk menampilkan daily total
             dataBulanIni.forEach(dayData => {
                 let cellTotal = totalHarianRow.insertCell();
                 const dailyTotal = dayData.totalPasien || 0; 
                 cellTotal.textContent = dailyTotal.toLocaleString('id-ID');
                 cellTotal.style.textAlign = 'right';
                 cellTotal.style.fontWeight = 'bold';
-                cellTotal.style.backgroundColor = 'var(--bg-table-total)'; 
+                cellTotal.style.backgroundColor = '#c5cae9'; // Light blue for daily total emphasis
             });
 
+            // Cell Terakhir: Grand Total Bulanan
             let cellGrandTotal = totalHarianRow.insertCell();
             cellGrandTotal.textContent = totalPasienBulanIni.toLocaleString('id-ID');
             cellGrandTotal.style.textAlign = 'right';
             cellGrandTotal.style.fontWeight = 'bold';
-            cellGrandTotal.style.backgroundColor = '#2e7d32'; 
+            cellGrandTotal.style.backgroundColor = '#2e7d32'; // Dark green
             cellGrandTotal.style.color = 'white';
 
+            // 6. Panggil fungsi Chart untuk menampilkan visualisasi
             buatChartLaporan(dataBulanIni); 
         }
 
-        // FUNGSI EKSPOR XLSX (LANDSCAPE/TRANSPOSE) - DIBIARKAN SAMA
+        // FUNGSI EKSPOR XLSX (LANDSCAPE/TRANSPOSE)
         async function eksporLaporanXLSX_Transpose() {
             const bulanFilter = document.getElementById('bulan-filter').value;
             if (!bulanFilter) {
@@ -1260,71 +1426,86 @@
                  return;
             }
 
+            // Data Keys & Headers (Filter keluar 'Tanggal' karena akan jadi Header Baris)
             const reportDataKeys = dataKeysReport.slice(1);
             const reportKolomHeader = kolomHeader.slice(1); 
 
+            // 1. Persiapan Data Transpose
             let finalDataXLSX = [];
             
+            // a. Buat Header Kolom Pertama: Kategori, diikuti oleh Tanggal (Hanya Hari), lalu Total Bulan
             const dates = dataBulanIni.map(item => item.tanggal.split('-')[2]); 
             
             const headerRow = ["Kategori", ...dates, "TOTAL BULAN"];
             finalDataXLSX.push(headerRow);
             
+            // Array untuk menyimpan Total Pasien Harian (untuk dihitung Grand Totalnya di akhir)
             let totalPasienBulanIni = 0; 
 
             reportKolomHeader.forEach((displayHeader, index) => {
                 const dataKey = reportDataKeys[index]; 
-                const row = [displayHeader]; 
+                const row = [displayHeader]; // Mulai baris dengan nama Kategori
                 
                 let totalMetric = 0;
                 
+                // Loop melalui setiap hari/kolom
                 dataBulanIni.forEach(dayData => {
                     const value = dayData[dataKey];
 
                     if (displayHeader.includes('Ket.')) {
-                        const ketValue = String(value || '').replace(/\n/g, ' | '); 
+                        // Data Teks/Keterangan
+                        const ketValue = String(value || '').replace(/\n/g, ' | '); // Membersihkan keterangan multi-baris
                         row.push(ketValue);
                     } else {
+                        // Data Numerik
                         const numValue = parseInt(value) || 0;
                         row.push(numValue);
                         totalMetric += numValue;
                         
+                        // Hanya menghitung grand total untuk baris 'totalPasien'
                         if (dataKey === 'totalPasien') {
                             totalPasienBulanIni += numValue;
                         }
                     }
                 });
                 
-                row.push(displayHeader.includes('Ket.') ? '' : totalMetric);
+                // Tambahkan Total Bulan di akhir baris
+                row.push(displayHeader.includes('Ket.') ? '' : totalMetric); // Keterangan tidak di-total
                 
                 finalDataXLSX.push(row);
             });
 
+            // c. Tambahkan Baris Grand Total
             let totalHarianRow = ["TOTAL HARIAN"]; 
             
+            // Kita harus mencari index baris 'totalPasien' di array finalDataXLSX
             const totalPasienDataIndex = reportDataKeys.indexOf('totalPasien'); 
 
             dates.forEach((date, dateIndex) => {
+                // Ambil data dari baris yang sudah diolah (finalDataXLSX[totalPasienDataIndex + 1])
+                // dateIndex + 1 karena index 0 adalah 'Kategori'
                 const dailyTotal = finalDataXLSX[totalPasienDataIndex + 1] ? finalDataXLSX[totalPasienDataIndex + 1][dateIndex + 1] : 0; 
                 totalHarianRow.push(dailyTotal || 0);
             });
-            totalHarianRow.push(totalPasienBulanIni); 
+            totalHarianRow.push(totalPasienBulanIni); // Total Pasien Bulanan
             finalDataXLSX.push(totalHarianRow);
 
+            // 2. Buat Workbook XLSX
             const ws = XLSX.utils.aoa_to_sheet(finalDataXLSX); 
             
             // --- START: MODIFIKASI STYLING XLSX (Warna dan Freeze Pane) ---
             
-            // Tetap gunakan warna statis yang sama di XLSX untuk konsistensi di dokumen
+            // Styles definition
             const styles = {
-                header: { fill: { patternType: "solid", fgColor: { rgb: "3949AB" } }, font: { color: { rgb: "FFFFFF" }, bold: true } }, 
-                totalBulan: { fill: { patternType: "solid", fgColor: { rgb: "E8EAF6" } }, font: { bold: true } }, 
-                grandTotal: { fill: { patternType: "solid", fgColor: { rgb: "E8F5E9" } }, font: { bold: true, color: { rgb: "2E7D32" } } }, 
-                rj: { fill: { patternType: "solid", fgColor: { rgb: "FFFDE7" } } }, 
-                ri: { fill: { patternType: "solid", fgColor: { rgb: "E0F7FA" } } }, 
-                khusus: { fill: { patternType: "solid", fgColor: { rgb: "FFE0B2" } } } 
+                header: { fill: { patternType: "solid", fgColor: { rgb: "3949AB" } }, font: { color: { rgb: "FFFFFF" }, bold: true } }, // Biru Tua (Header)
+                totalBulan: { fill: { patternType: "solid", fgColor: { rgb: "E8EAF6" } }, font: { bold: true } }, // Biru Muda (Kolom Total)
+                grandTotal: { fill: { patternType: "solid", fgColor: { rgb: "E8F5E9" } }, font: { bold: true, color: { rgb: "2E7D32" } } }, // Hijau Muda (Baris Grand Total)
+                rj: { fill: { patternType: "solid", fgColor: { rgb: "FFFDE7" } } }, // Krem Muda (RJ)
+                ri: { fill: { patternType: "solid", fgColor: { rgb: "E0F7FA" } } }, // Biru Muda (RI)
+                khusus: { fill: { patternType: "solid", fgColor: { rgb: "FFE0B2" } } } // Oranye Muda (Khusus)
             };
 
+            // Terapkan Style pada Sel
             for (let R = 0; R < finalDataXLSX.length; ++R) {
                 const rowData = finalDataXLSX[R];
                 const category = String(rowData[0]); 
@@ -1337,17 +1518,23 @@
                         let cellStyle = {};
                         
                         if (R === 0) {
+                            // Style untuk Baris Header (Baris 1)
                             cellStyle = styles.header;
                         } else if (category === 'TOTAL HARIAN') {
+                            // Style untuk Baris Grand Total (Baris terakhir)
                             if (C === rowData.length - 1) {
+                                 // Kolom Total Bulanan di Grand Total
                                  cellStyle = { ...styles.grandTotal, fill: styles.grandTotal.fill, font: { ...styles.grandTotal.font, color: { rgb: "FFFFFF" } } };
                             } else {
+                                 // Kolom Total Harian
                                  cellStyle = styles.grandTotal; 
                             }
                             
                         } else if (C === rowData.length - 1) {
+                            // Style untuk Kolom TOTAL BULAN (Kolom terakhir)
                             cellStyle = styles.totalBulan;
                         } else {
+                            // Style Latar Belakang berdasarkan Kategori
                             if (category.includes('RJ') && !category.includes('Ket.')) {
                                 cellStyle = styles.rj;
                             } else if (category.includes('RI') && !category.includes('Ket.')) {
@@ -1357,34 +1544,42 @@
                             }
                         }
                         
+                        // Menerapkan style dengan menggabungkan style yang sudah ada (misalnya number format 'z')
                         cell.s = { ...cell.s, ...cellStyle }; 
                     }
                 }
             }
 
+            // Tambahkan Fitur 'Freeze Pane' pada Header dan Kolom Kategori
             ws['!freeze'] = { xSplit: 1, ySplit: 1 };
             
             // --- END: MODIFIKASI STYLING XLSX ---
 
 
+            // PENTING: Penyesuaian Lebar Kolom
             const wscols = [];
-            wscols.push({wch: 25}); 
+            wscols.push({wch: 25}); // Kolom A (Kategori): Lebar 25
             for(let i = 0; i < dates.length; i++) {
-                 wscols.push({wch: 6}); 
+                 wscols.push({wch: 6}); // Kolom Tanggal: Lebar 6 (Lebih kecil karena hanya angka)
             }
-            wscols.push({wch: 15}); 
+            wscols.push({wch: 15}); // Kolom Terakhir (TOTAL BULAN): Lebar 15
             ws['!cols'] = wscols;
 
+            // *** KONFIGURASI PENGATURAN CETAK (PRINT LAYOUT) ***
             if (!ws['!page']) ws['!page'] = {};
             
+            // 1. Atur Orientasi ke LANDSCAPE
             ws['!page'].orientation = 'landscape'; 
+
+            // 2. Atur Fit-to-Page (agar muat di satu lebar kertas)
             ws['!page'].fitToPage = true;   
-            ws['!page'].fitToWidth = 1;     
-            ws['!page'].fitToHeight = 0;    
+            ws['!page'].fitToWidth = 1;     // Paksa agar lebar data hanya 1 halaman
+            ws['!page'].fitToHeight = 0;    // Biarkan tinggi menyesuaikan
 
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Laporan Transpose");
 
+            // 3. Tentukan Nama File dan Unduh
             const [tahun, bulan] = bulanFilter.split('-');
             const namaFile = `Laporan_Transpose_XLSX_Compact_${tahun}_${bulan}.xlsx`;
             
@@ -1393,78 +1588,8 @@
             alert(`Laporan XLSX Transpose Compact untuk bulan ${bulanFilter} berhasil diekspor.`);
         }
 
-        // --- START: FUNGSI MODE GELAP ---
-        
-        // FUNGSI UTAMA UNTUK MENGGANTI TEMA
-        function toggleTheme() {
-            const body = document.body;
-            const isDarkMode = body.classList.toggle('dark-mode');
-            
-            // Simpan preferensi pengguna di localStorage
-            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-            
-            // Perbarui teks tombol/status
-            updateThemeStatus(isDarkMode);
-            
-            // Perbarui Chart.js setelah perubahan mode
-            if (monthlyChart) {
-                // Hancurkan dan buat ulang chart agar warna diperbarui
-                const dataBulanIni = monthlyChart.data.labels.map((label, index) => ({
-                    tanggal: label.split('/').reverse().join('-'), // Konversi kembali ke format YYYY-MM-DD
-                    totalPasien: monthlyChart.data.datasets[0].data[index]
-                }));
-                buatChartLaporan(dataBulanIni); 
-            }
-        }
-        
-        // FUNGSI UNTUK MEMPERBARUI TAMPILAN TOMBOL
-        function updateThemeStatus(isDarkMode) {
-            const statusElement = document.getElementById('theme-status');
-            const buttonElement = document.getElementById('toggle-theme-button');
-            
-            if (isDarkMode) {
-                statusElement.textContent = 'Mode Gelap';
-                buttonElement.innerHTML = '☀️ Ganti Mode';
-                buttonElement.style.backgroundColor = '#03dac6'; // Teal untuk Mode Gelap
-            } else {
-                statusElement.textContent = 'Mode Terang';
-                buttonElement.innerHTML = '🌙 Ganti Mode';
-                buttonElement.style.backgroundColor = '#607d8b'; // Blue-Gray untuk Mode Terang
-            }
-        }
-
-        // FUNGSI UNTUK MENGAPLIKASIKAN TEMA SAAT PERTAMA KALI MEMUAT
-        function applyInitialTheme() {
-            // Cek preferensi dari localStorage
-            const savedTheme = localStorage.getItem('theme');
-            // Cek preferensi sistem
-            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-            
-            let isDarkMode = false;
-            
-            if (savedTheme === 'dark') {
-                isDarkMode = true;
-            } else if (savedTheme === 'light') {
-                isDarkMode = false;
-            } else if (prefersDark) {
-                // Jika tidak ada di localStorage, ikuti preferensi sistem
-                isDarkMode = true;
-            }
-
-            if (isDarkMode) {
-                document.body.classList.add('dark-mode');
-            }
-            
-            updateThemeStatus(isDarkMode);
-        }
-
-        // --- END: FUNGSI MODE GELAP ---
-
         window.onload = async function() {
-            // 1. Terapkan tema awal (dari localStorage/preferensi sistem)
-            applyInitialTheme();
-
-            // 2. Set tanggal hari ini
+            // Set tanggal hari ini
             const today = new Date();
             const year = today.getFullYear();
             const month = String(today.getMonth() + 1).padStart(2, '0');
@@ -1473,10 +1598,13 @@
             
             document.getElementById('tanggal').value = defaultDate;
             
-            // 3. Memuat data dan laporan
+            // Memuat data dari Firebase
             await muatDataTanggal(); 
+            // Memuat filter bulan dari data yang ada di Firebase
             await inisialisasiBulanFilter();
+            // Menampilkan laporan untuk bulan terbaru
             await tampilkanLaporan();
+            // PENTING: Memuat Changelog DATA saat halaman pertama kali dimuat
             await muatChangelog();
         };
     </script>
